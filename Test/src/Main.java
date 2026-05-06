@@ -1,3 +1,3 @@
 void main(){
-    System.out.println("Yo, arystokracja!"); // jebany mail
+    System.out.println("Yo, arystokracja!"); // błagam, napraw się
 }

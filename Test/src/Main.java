@@ -1,3 +1,3 @@
 void main(){
-    System.out.println("Yo, arystokracja!");
+    System.out.println("Yo, arystokracja!"); //commit check
 }

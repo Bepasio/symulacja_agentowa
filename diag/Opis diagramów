@@ -1,0 +1,10 @@
+Diagram maszyny stanów
+Diagram przedstawia cykl życia obiektu klasy Butelkomat oraz jego reakcje na zdarzenia. Podstawowym stanem jest GOTOWY_DO_PRACY. Urządzenie pozostaje w nim podczas standardowych interakcji, dopóki ma miejsce na kolejne opakowania. Gdy licznik zapełnienia zrówna się z pojemnością maksymalną, maszyna automatycznie przechodzi w stan PRZEPEŁNIONY i blokuje kolejne interakcje. Dodatkowo uwzględniono wpływ środowiska zewnętrznego – w każdym momencie losowe zdarzenie z silnika symulacji (np. brak prądu) może wymusić przejście w stan AWARIA. Z obu stanów zablokowania maszynę może przywrócić jedynie interwencja wirtualnego serwisu, która resetuje urządzenie.
+
+Diagram sekwencji
+Diagram ilustruje chronologiczną komunikację pomiędzy obiektami podczas głównego przypadku użycia w systemie. Akcję inicjuje SimulationEngine, który w ramach pętli czasu wywołuje metodę update() na agencie Consumer. Konsument przed podjęciem akcji odpytuje maszynę o dostępność miejsca (checkCapacity()). Po otrzymaniu potwierdzenia, agent przekazuje obiekt Bottle do metody interact(). Butelkomat, zachowując zasady enkapsulacji, nie określa samodzielnie wartości butelki, lecz wywołuje na niej metodę getDepositValue(). Po udanej operacji maszyna zwraca konsumentowi potwierdzenie sukcesu.
+
+Diagram obiektów (snapshot)
+Diagram stanowi "zrzut pamięci" (snapshot) symulacji w zatrzymanym, konkretnym momencie (sobota, godz. 14:30, słoneczna pogoda). Prezentuje on wybrane instancje klas działające w systemie wraz z ich aktualnymi stanami i wartościami atrybutów. Obiekt nadrzędny WorldMap za pomocą kompozycji przetrzymuje instancje infrastruktury (Butelkomat, TrashBin) oraz agentów (Consumer, Collector). Diagram obrazuje dokładny stan środowiska w danej klatce symulacji, np. butelkomat bliski przepełnienia (zajęte 450 z 500 miejsc) oraz relację agregacji – zbieracz posiada w swoim ekwipunku konkretne obiekty klasy Bottle. Pokazuje to, w jaki sposób zdefiniowane w kodzie szablony klas funkcjonują w pamięci jako żywe obiekty.
+
+---Diagramy robiłem PlantUML'em---

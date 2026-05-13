@@ -3,46 +3,73 @@ package pl.butelkomat.simulation.infrastructure;
 import pl.butelkomat.simulation.item.Bottle;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
-public class Butelkomat implements Interactable{
-//    jak butla jest refundable to przyjmuje
-//    trzeba okreslic pojemnosc, czy dziala, czy ma papier do drukowania
+public class Butelkomat implements Interactable {
     private final int capacity;
     private final ArrayList<Bottle> bottles;
-    private boolean canCollectBottle;
+    private int paperStock;
 
-    public Butelkomat(int capacity){
+    public boolean canCollectBottle() {
+        return bottles.size() < capacity && paperStock > 0;
+    }
+
+    public Butelkomat(int capacity, int paperStock) {
         this.capacity = capacity;
         this.bottles = new ArrayList<>();
-        this.canCollectBottle = true;
+        this.paperStock = paperStock;
     }
 
     public boolean addBottle(Bottle bottle) {
-        if(!bottle.isRefundable()){return false;}
-        if(bottles.size() < capacity){
-            bottles.add(bottle);
-            if(bottles.size() == capacity){
-                canCollectBottle = false;
-            }
-            return true;
+        if (!bottle.isRefundable() || !canCollectBottle()) {
+            return false;
         }
-        return false;
+
+        bottles.add(bottle);
+        return true;
     }
 
-    public void emptying(){
+    public int processDeposit(ArrayList<Bottle> agentBottles) {
+        if (!canCollectBottle()) {
+            return 0;
+        }
+
+        int acceptedBottles = 0;
+        Iterator<Bottle> iterator = agentBottles.iterator();
+
+        while (iterator.hasNext()) {
+            if (bottles.size() >= capacity) {
+                break;
+            }
+
+            Bottle bottle = iterator.next();
+            if (bottle.isRefundable()) {
+                bottles.add(bottle);
+                iterator.remove();
+                acceptedBottles++;
+            }
+        }
+
+        if (acceptedBottles > 0) {
+            paperStock--;
+        }
+
+        return acceptedBottles;
+    }
+
+    public void paperRefill(int refillAmount) {
+        paperStock = refillAmount;
+    }
+
+    public void emptying() {
         bottles.clear();
-        canCollectBottle = true;
     }
 
-    public boolean canCollectBottle(){
-        return canCollectBottle;
-    }
-
-    public int getCurrentFillLevel(){
+    public int getCurrentFillLevel() {
         return bottles.size();
     }
 
-    public int getCapacity(){
+    public int getCapacity() {
         return capacity;
     }
 }

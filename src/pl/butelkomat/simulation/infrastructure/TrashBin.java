@@ -1,18 +1,19 @@
 package pl.butelkomat.simulation.infrastructure;
 
 import pl.butelkomat.simulation.item.Bottle;
+import pl.butelkomat.simulation.world.Position;
 
 import java.util.Stack;
 
 public class TrashBin implements Interactable{
     private final int capacity;
     private final Stack<Bottle> bottles; //wrzucamy butelki na stos, jak collector wyciąga je z kosza to bierze 'od gory'
-//    private boolean canCollectBottle;
+    private Position position;
 
-    public TrashBin(int capacity) {
+    public TrashBin(int capacity, Position position) {
         this.capacity = capacity;
         this.bottles = new Stack<>();
-//        this.canCollectBottle = true; //domyslnie kazdy moze przyjac
+        this.position = position;
     }
 
     public boolean canCollectBottle() {
@@ -40,5 +41,9 @@ public class TrashBin implements Interactable{
             return bottles.pop();
         }
         return null;
+    }
+
+    public Position getPosition(){
+        return position;
     }
 }

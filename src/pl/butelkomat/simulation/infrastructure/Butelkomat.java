@@ -1,6 +1,7 @@
 package pl.butelkomat.simulation.infrastructure;
 
 import pl.butelkomat.simulation.item.Bottle;
+import pl.butelkomat.simulation.world.Position;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,15 +10,17 @@ public class Butelkomat implements Interactable {
     private final int capacity;
     private final ArrayList<Bottle> bottles;
     private int paperStock;
+    private Position position;
 
     public boolean canCollectBottle() {
         return bottles.size() < capacity && paperStock > 0;
     }
 
-    public Butelkomat(int capacity, int paperStock) {
+    public Butelkomat(int capacity, int paperStock, Position position) {
         this.capacity = capacity;
         this.bottles = new ArrayList<>();
         this.paperStock = paperStock;
+        this.position = position;
     }
 
     public boolean addBottle(Bottle bottle) {
@@ -71,5 +74,9 @@ public class Butelkomat implements Interactable {
 
     public int getCapacity() {
         return capacity;
+    }
+
+    public Position getPosition() {
+        return position;
     }
 }

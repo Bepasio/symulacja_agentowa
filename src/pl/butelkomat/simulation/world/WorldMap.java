@@ -55,6 +55,10 @@ public class WorldMap {
         zones.add(zone);
     }
 
+    public ArrayList<Butelkomat> getButelkomats() {
+        return butelkomats;
+    }
+
     public double getMultiplierAt(Position position) {
         for (Zone zone : zones) {
             if(zone.isInZone(position)){

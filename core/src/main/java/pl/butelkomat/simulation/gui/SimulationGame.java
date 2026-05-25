@@ -29,7 +29,7 @@ public class SimulationGame extends ApplicationAdapter {
         DataLoader loader = new DataLoader();
         loader.loadZones(worldMap, "cfg/zones.txt");
         loader.loadButelkomats(worldMap, "cfg/butelkomats.txt");
-        loader.loadTrashBins(worldMap, "cfg/trashbins.txt");
+        loader.loadTrashBins(worldMap, "cfg/trashBins.txt");
 
         engine = new SimulationEngine(worldMap);
         engine.getTimeManager().setSpeedMultiplier(5.0f); // Przyspieszenie z GUI

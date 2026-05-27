@@ -5,23 +5,96 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import pl.butelkomat.simulation.engine.SimulationEngine;
 import pl.butelkomat.simulation.infrastructure.BottleMachine;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
 import pl.butelkomat.simulation.utils.DataLoader;
 import pl.butelkomat.simulation.world.WorldMap;
+import pl.butelkomat.simulation.agents.Agent;
+import pl.butelkomat.simulation.agents.Consumer;
+import pl.butelkomat.simulation.agents.Collector;
 
 public class SimulationGame extends ApplicationAdapter {
     private SimulationEngine engine;
     private ShapeRenderer shapeRenderer;
+    private SpriteBatch spriteBatch;
     private OrthographicCamera camera;
     private final int TILE_SIZE = 12;
+
+    private Stage stage;
+    private Skin skin;
+    private Slider speedSlider;
+    private Label speedLabel;
+
+    // tekstury
+    private Texture textureWater;
+    private Texture textureGrass;
+    private Texture texturePath;
+    private Texture textureWall;      // ściana/budynek
+    private Texture textureBottle;
+    private Texture textureTrash;
+
+    /**
+     * Tworzy teksturę PNG o rozmiarze TILE_SIZE x TILE_SIZE z danym kolorem
+     */
+    private Texture createTextureFromColor(Color color) {
+        Pixmap pixmap = new Pixmap(TILE_SIZE, TILE_SIZE, Pixmap.Format.RGBA8888);
+        pixmap.setColor(color);
+        pixmap.fill();
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+        return texture;
+    }
+
+    /**
+     * Tworzy teksturę PNG z wzorem/teksturą (np. trawa, woda)
+     */
+    private Texture createPatternTexture(Color baseColor, Color accentColor) {
+        Pixmap pixmap = new Pixmap(TILE_SIZE, TILE_SIZE, Pixmap.Format.RGBA8888);
+        // Wypełnij bazowym kolorem
+        pixmap.setColor(baseColor);
+        pixmap.fill();
+        // Dodaj wzór
+        pixmap.setColor(accentColor);
+        for (int i = 0; i < TILE_SIZE; i += 4) {
+            pixmap.drawPixel(i, i);
+            pixmap.drawPixel(i + 2, i + 2);
+        }
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+        return texture;
+    }
+
+    /**
+     * zostawcie tę sekcję bo drawable jest do koloru suwaka!!!
+     */
+    private Drawable createGrayDrawable(Color color) {
+        Pixmap pixmap = new Pixmap(4, 4, Pixmap.Format.RGBA8888);
+        pixmap.setColor(color);
+        pixmap.fill();
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+        return new TextureRegionDrawable(new TextureRegion(texture));
+    }
 
     @Override
     public void create() {
         WorldMap worldMap = new WorldMap(90, 26);
-        
+
         // 1. Ładowanie tła z ASCII
         worldMap.loadBackgroundFromAscii("cfg/wroclaw_map.txt");
 
@@ -32,11 +105,58 @@ public class SimulationGame extends ApplicationAdapter {
         loader.loadTrashBins(worldMap, "cfg/trashBins.txt");
 
         engine = new SimulationEngine(worldMap);
-        engine.getTimeManager().setSpeedMultiplier(5.0f); // Przyspieszenie z GUI
+        engine.getTimeManager().setSpeedMultiplier(1.0f);
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        shapeRenderer = new ShapeRenderer();
+
+        // zmiana renderu na sprite
+        spriteBatch = new SpriteBatch();
+        shapeRenderer = new ShapeRenderer();  // zostawcie to do UI jakby się z...epsuło
+
+        // ładowanie tekstur PNG dla terenu
+        textureWater = createPatternTexture(new Color(0.2f, 0.5f, 0.8f, 1.0f), new Color(0.1f, 0.3f, 0.6f, 1.0f));
+        textureGrass = createPatternTexture(new Color(0.2f, 0.7f, 0.2f, 1.0f), new Color(0.1f, 0.5f, 0.1f, 1.0f));
+        texturePath = createTextureFromColor(new Color(0.9f, 0.7f, 0.5f, 1.0f));  // Beż/piasek
+        textureWall = createTextureFromColor(new Color(0.5f, 0.5f, 0.5f, 1.0f));   // Szarość dla ścian
+        textureBottle = createTextureFromColor(new Color(0.2f, 0.8f, 0.2f, 1.0f)); // Zielony
+        textureTrash = createTextureFromColor(new Color(0.7f, 0.7f, 0.7f, 1.0f));  // Szary
+
+        // init UI z Scene2D
+        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        stage = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(stage);
+
+        // tworzenie tabeli UI
+        Table table = new Table();
+        table.setFillParent(true);
+        table.top().left().pad(10);
+
+        // label wyświetlający aktualną prędkość
+        speedLabel = new Label("Predkosc: 1.0x", skin);
+        table.add(speedLabel).padBottom(5).row();
+
+        // slider do kontroli prędkości (na razie zakres 0.1x do 5.0x)
+        speedSlider = new Slider(0.1f, 5.0f, 0.1f, false, skin);
+        speedSlider.setValue(1.0f);
+
+        // a tu macie setowanie koloru suwaka do prędkości (na razie)
+        Slider.SliderStyle sliderStyle = speedSlider.getStyle();
+        sliderStyle.background = createGrayDrawable(new Color(0.3f, 0.3f, 0.3f, 1.0f));      // Ciemnoszary background (ścieżka)
+        sliderStyle.knob = createGrayDrawable(new Color(0.7f, 0.7f, 0.7f, 1.0f));             // Siedmiodziesiątoszary knob
+        sliderStyle.knobBefore = createGrayDrawable(new Color(0.5f, 0.5f, 0.5f, 1.0f));       // Średnio szary dla części "przesunięty"
+
+        speedSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+                float newSpeed = speedSlider.getValue();
+                engine.getTimeManager().setSpeedMultiplier(newSpeed);
+                speedLabel.setText(String.format("Predkosc: %.1fx", newSpeed));
+            }
+        });
+        table.add(speedSlider).width(150).row();
+
+        stage.addActor(table);
     }
 
     @Override
@@ -47,40 +167,76 @@ public class SimulationGame extends ApplicationAdapter {
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        shapeRenderer.setProjectionMatrix(camera.combined);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        spriteBatch.setProjectionMatrix(camera.combined);
+        spriteBatch.begin();
 
         WorldMap map = engine.getMap();
         int h = map.getHeight();
 
-        // Rysowanie mapy (terenu)
+        // Rysowanie mapy (terenu)... teraz z teksturami PNG
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < map.getWidth(); x++) {
                 float rx = x * TILE_SIZE;
                 float ry = (h - 1 - y) * TILE_SIZE;
                 WorldMap.TileType tile = map.getTileType(x, y);
-                
-                if (tile == null) shapeRenderer.setColor(Color.DARK_GRAY);
-                else if (tile == WorldMap.TileType.WATER) shapeRenderer.setColor(Color.BLUE);
-                else if (tile == WorldMap.TileType.GRASS) shapeRenderer.setColor(Color.FOREST);
-                else if (tile == WorldMap.TileType.PATH) shapeRenderer.setColor(Color.CORAL);
-                else shapeRenderer.setColor(Color.DARK_GRAY);
 
-                shapeRenderer.rect(rx, ry, TILE_SIZE, TILE_SIZE);
+                Texture tileTexture = textureWall;  // domyślnie szara ściana
+                if (tile != null) {
+                    if (tile == WorldMap.TileType.WATER) tileTexture = textureWater;
+                    else if (tile == WorldMap.TileType.GRASS) tileTexture = textureGrass;
+                    else if (tile == WorldMap.TileType.PATH) tileTexture = texturePath;
+                }
+
+                spriteBatch.draw(tileTexture, rx, ry, TILE_SIZE, TILE_SIZE);
             }
         }
 
-        // Rysowanie infrastruktury (z Twoich plików txt)
-        shapeRenderer.setColor(Color.GREEN);
+        // rysowanie infrastruktury z teksturami
         for (BottleMachine b : map.getButelkomats()) {
-            shapeRenderer.rect(b.getPosition().getX() * TILE_SIZE, (h - 1 - b.getPosition().getY()) * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            spriteBatch.draw(textureBottle, b.getPosition().getX() * TILE_SIZE, (h - 1 - b.getPosition().getY()) * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
 
-        shapeRenderer.setColor(Color.LIGHT_GRAY);
         for (TrashBin t : map.getTrashBins()) {
-            shapeRenderer.rect(t.getPosition().getX() * TILE_SIZE, (h - 1 - t.getPosition().getY()) * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            spriteBatch.draw(textureTrash, t.getPosition().getX() * TILE_SIZE, (h - 1 - t.getPosition().getY()) * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
 
-        shapeRenderer.end();
+        spriteBatch.end();
+
+        // aktualizacja i renderowanie UI
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
+    }
+
+    @Override
+    public void dispose() {
+        shapeRenderer.dispose();
+        spriteBatch.dispose();
+        stage.dispose();
+        skin.dispose();
+
+        // czyszczenie tekstur terenu
+        textureWater.dispose();
+        textureGrass.dispose();
+        texturePath.dispose();
+        textureWall.dispose();
+        textureBottle.dispose();
+        textureTrash.dispose();
+
+        // czyszczenie tekstur z szarych drawable'ów
+        Slider.SliderStyle sliderStyle = speedSlider.getStyle();
+        if (sliderStyle.background instanceof TextureRegionDrawable) {
+            ((TextureRegionDrawable) sliderStyle.background).getRegion().getTexture().dispose();
+        }
+        if (sliderStyle.knob instanceof TextureRegionDrawable) {
+            ((TextureRegionDrawable) sliderStyle.knob).getRegion().getTexture().dispose();
+        }
+        if (sliderStyle.knobBefore instanceof TextureRegionDrawable) {
+            ((TextureRegionDrawable) sliderStyle.knobBefore).getRegion().getTexture().dispose();
+        }
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
     }
 }

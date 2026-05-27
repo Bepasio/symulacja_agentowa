@@ -6,7 +6,7 @@ import pl.butelkomat.simulation.world.WorldMap;
 import pl.butelkomat.simulation.world.Zone;
 
 public class Main {
-
+//to jest useless
     public static void main(String[] args) {
         WorldMap worldMap = new WorldMap(89, 25);
         BottleMachine bottleMachine = new BottleMachine(100, 10, new Position(100, 100));

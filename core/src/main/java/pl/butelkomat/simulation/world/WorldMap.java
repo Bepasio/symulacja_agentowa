@@ -77,6 +77,46 @@ public class WorldMap {
         zones.add(zone);
     }
 
+    public int calculateDistance(Position p1, Position p2) {
+        return Math.abs(p1.getX() - p2.getX()) + Math.abs(p1.getY() - p2.getY());
+    }
+
+    public Position nearestTrashBin(Position agentPosition) {
+        TrashBin nearest = null;
+        int minDistance = Integer.MAX_VALUE;
+
+        for(TrashBin bin : trashBins) {
+            int distance = calculateDistance(agentPosition, bin.getPosition());
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearest = bin;
+            }
+        }
+        if(nearest == null) {
+            return null;
+        }
+        return nearest.getPosition();
+    }
+
+    public Position nearestBottleMachine(Position agentPosition) {
+        BottleMachine nearest = null;
+        int minDistance = Integer.MAX_VALUE;
+
+        for(BottleMachine machine : bottleMachines) {
+            int distance = calculateDistance(agentPosition, machine.getPosition());
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearest = machine;
+            }
+        }
+        if(nearest == null) {
+            return null;
+        }
+        return nearest.getPosition();
+    }
+
     public int getWidth() { return width; }
     public int getHeight() { return height; }
     public TileType getTileType(int x, int y) { return terrainGrid[y][x]; }

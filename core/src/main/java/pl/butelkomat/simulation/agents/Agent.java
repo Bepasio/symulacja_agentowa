@@ -32,11 +32,6 @@ public abstract class Agent implements MapElement {
         this.position = position;
     }
 
-//    public enum TargetType {
-//        BOTTLE,
-//        TRASH
-//    }
-
     public Position getTarget(ElementType type, WorldMap map) {
         if (type == ElementType.BOTTLE_MACHINE) {
             return map.nearestBottleMachine(position);
@@ -65,7 +60,4 @@ public abstract class Agent implements MapElement {
     }
 
     public abstract void step(boolean movePhase, WorldMap map);
-//    w zaleznosci od typu zwroci nam najblizszy obiekt
-//    w klasie consumer/collector bedzie metoda ktora wybierze co chce znalezc
-
 }

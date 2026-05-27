@@ -17,7 +17,6 @@ public class SimulationEngine {
         for (int i = 0; i < ticks; i++) {
             boolean movePhase = timeManager.shouldAgentsMove();
             for (Agent agent : map.getAgents()) {
-                // Gdy uzupełnisz agentów o metody step(), wywołaj to:
                  agent.step(movePhase, map);
             }
         }

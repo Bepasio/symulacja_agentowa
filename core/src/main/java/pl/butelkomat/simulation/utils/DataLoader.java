@@ -2,6 +2,8 @@ package pl.butelkomat.simulation.utils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import pl.butelkomat.simulation.agents.Collector;
+import pl.butelkomat.simulation.agents.Consumer;
 import pl.butelkomat.simulation.infrastructure.BottleMachine;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
 import pl.butelkomat.simulation.world.ElementType;
@@ -41,6 +43,10 @@ public class DataLoader {
         } catch (Exception e) {
             System.out.println("Błąd ładowania śmietników: " + e.getMessage());
         }
+
+        worldMap.addElement(new Consumer(new Position(10, 10)));
+        worldMap.addElement(new Consumer(new Position(15, 5)));
+        worldMap.addElement(new Collector(new Position(40, 12)));
     }
 
 //    public void loadTrashBins(WorldMap worldMap, String name) {

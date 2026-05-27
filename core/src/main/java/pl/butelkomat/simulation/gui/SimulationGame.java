@@ -19,6 +19,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import pl.butelkomat.simulation.agents.Agent;
+import pl.butelkomat.simulation.agents.Consumer;
 import pl.butelkomat.simulation.engine.SimulationEngine;
 import pl.butelkomat.simulation.infrastructure.BottleMachine;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
@@ -45,6 +47,9 @@ public class SimulationGame extends ApplicationAdapter {
     private Texture textureWall;      // ściana/budynek
     private Texture textureBottle;
     private Texture textureTrash;
+
+    private Texture textureConsumer;
+    private Texture textureCollector;
 
     /**
      * Tworzy teksturę PNG o rozmiarze TILE_SIZE x TILE_SIZE z danym kolorem
@@ -119,6 +124,9 @@ public class SimulationGame extends ApplicationAdapter {
         textureWall = createTextureFromColor(new Color(0.5f, 0.5f, 0.5f, 1.0f));   // Szarość dla ścian
         textureBottle = createTextureFromColor(new Color(0.2f, 0.8f, 0.2f, 1.0f)); // Zielony
         textureTrash = createTextureFromColor(new Color(0.7f, 0.7f, 0.7f, 1.0f));  // Szary
+
+        textureConsumer = createTextureFromColor(new Color(0.8f, 0.2f, 0.2f, 1.0f)); // Czerwony consumer
+        textureCollector = createTextureFromColor(new Color(0.2f, 0.2f, 0.8f, 1.0f)); // Niebieski collector
 
         // init UI z Scene2D
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
@@ -196,6 +204,19 @@ public class SimulationGame extends ApplicationAdapter {
 
         for (TrashBin t : map.getTrashBins()) {
             spriteBatch.draw(textureTrash, t.getPosition().getX() * TILE_SIZE, (h - 1 - t.getPosition().getY()) * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        }
+
+        for (Agent a : map.getAgents()) {
+            // Sprawdzamy, kim jest agent, żeby dobrać kolor
+            Texture tex;
+
+            if (a instanceof Consumer) {
+                tex = textureConsumer;
+            } else {
+                tex = textureCollector;
+            }
+
+            spriteBatch.draw(tex, a.getPosition().getX() * TILE_SIZE, (h - 1 - a.getPosition().getY()) * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
 
         spriteBatch.end();

@@ -9,7 +9,7 @@ import pl.butelkomat.simulation.world.WorldMap;
 //    metoda step, czyli krok wykonywany w każdym cyklu symulacji
 //    w zaleznosci od miejsca i czasu jest jakis mnoznik generujemy butelke, losowo trzeba wybrac czy będzie kaucyjna
 //    jesli mamy pustą butelke to idziemy ją wyrzucic do najblizszego celu
-class Consumer extends Agent {
+public class Consumer extends Agent {
     public Consumer(Position startPosition) {
         super(startPosition, 2);
     }

@@ -19,14 +19,14 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import pl.butelkomat.simulation.agents.Agent;
+import pl.butelkomat.simulation.agents.Consumer;
 import pl.butelkomat.simulation.engine.SimulationEngine;
 import pl.butelkomat.simulation.infrastructure.BottleMachine;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
 import pl.butelkomat.simulation.utils.DataLoader;
 import pl.butelkomat.simulation.world.WorldMap;
-import pl.butelkomat.simulation.agents.Agent;
-import pl.butelkomat.simulation.agents.Consumer;
-import pl.butelkomat.simulation.agents.Collector;
+import pl.butelkomat.simulation.world.ElementType;
 
 public class SimulationGame extends ApplicationAdapter {
     private SimulationEngine engine;
@@ -47,6 +47,9 @@ public class SimulationGame extends ApplicationAdapter {
     private Texture textureWall;      // ściana/budynek
     private Texture textureBottle;
     private Texture textureTrash;
+
+    private Texture textureConsumer;
+    private Texture textureCollector;
 
     /**
      * Tworzy teksturę PNG o rozmiarze TILE_SIZE x TILE_SIZE z danym kolorem
@@ -101,8 +104,8 @@ public class SimulationGame extends ApplicationAdapter {
         // 2. Ładowanie Twoich plików konfiguracyjnych!
         DataLoader loader = new DataLoader();
         loader.loadZones(worldMap, "cfg/zones.txt");
-        loader.loadButelkomats(worldMap, "cfg/butelkomats.txt");
-        loader.loadTrashBins(worldMap, "cfg/trashBins.txt");
+        loader.loadElements(worldMap, "cfg/butelkomats.txt", ElementType.BOTTLE_MACHINE);
+        loader.loadElements(worldMap, "cfg/trashBins.txt", ElementType.TRASH_BIN);
 
         engine = new SimulationEngine(worldMap);
         engine.getTimeManager().setSpeedMultiplier(1.0f);
@@ -121,6 +124,9 @@ public class SimulationGame extends ApplicationAdapter {
         textureWall = createTextureFromColor(new Color(0.5f, 0.5f, 0.5f, 1.0f));   // Szarość dla ścian
         textureBottle = createTextureFromColor(new Color(0.2f, 0.8f, 0.2f, 1.0f)); // Zielony
         textureTrash = createTextureFromColor(new Color(0.7f, 0.7f, 0.7f, 1.0f));  // Szary
+
+        textureConsumer = createTextureFromColor(new Color(0.8f, 0.2f, 0.2f, 1.0f)); // Czerwony consumer
+        textureCollector = createTextureFromColor(new Color(0.2f, 0.2f, 0.8f, 1.0f)); // Niebieski collector
 
         // init UI z Scene2D
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
@@ -192,12 +198,25 @@ public class SimulationGame extends ApplicationAdapter {
         }
 
         // rysowanie infrastruktury z teksturami
-        for (BottleMachine b : map.getButelkomats()) {
+        for (BottleMachine b : map.getBottleMachines()) {
             spriteBatch.draw(textureBottle, b.getPosition().getX() * TILE_SIZE, (h - 1 - b.getPosition().getY()) * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
 
         for (TrashBin t : map.getTrashBins()) {
             spriteBatch.draw(textureTrash, t.getPosition().getX() * TILE_SIZE, (h - 1 - t.getPosition().getY()) * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        }
+
+        for (Agent a : map.getAgents()) {
+            // Sprawdzamy, kim jest agent, żeby dobrać kolor
+            Texture tex;
+
+            if (a instanceof Consumer) {
+                tex = textureConsumer;
+            } else {
+                tex = textureCollector;
+            }
+
+            spriteBatch.draw(tex, a.getPosition().getX() * TILE_SIZE, (h - 1 - a.getPosition().getY()) * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
 
         spriteBatch.end();

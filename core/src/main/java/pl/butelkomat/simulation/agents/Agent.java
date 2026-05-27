@@ -3,12 +3,15 @@ package pl.butelkomat.simulation.agents;
 import pl.butelkomat.simulation.infrastructure.BottleMachine;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
 import pl.butelkomat.simulation.item.Bottle;
+import pl.butelkomat.simulation.world.MapElement;
 import pl.butelkomat.simulation.world.Position;
 import pl.butelkomat.simulation.world.WorldMap;
+import pl.butelkomat.simulation.world.ElementType;
 
+import java.lang.classfile.TypeAnnotation;
 import java.util.ArrayList;
 
-public abstract class Agent {
+public abstract class Agent implements MapElement {
     protected Position position;
     protected int backpackCapacity;
     protected ArrayList<Bottle> bottles;
@@ -29,16 +32,16 @@ public abstract class Agent {
         this.position = position;
     }
 
-    public enum TargetType {
-        BOTTLE,
-        TRASH
-    }
+//    public enum TargetType {
+//        BOTTLE,
+//        TRASH
+//    }
 
-    public Position getTarget(TargetType type, WorldMap map) {
-        if (type == TargetType.BOTTLE) {
+    public Position getTarget(ElementType type, WorldMap map) {
+        if (type == ElementType.BOTTLE_MACHINE) {
             return map.nearestBottleMachine(position);
         }
-        if (type == TargetType.TRASH) {
+        if (type == ElementType.TRASH_BIN) {
             return map.nearestTrashBin(position);
         }
         return null;

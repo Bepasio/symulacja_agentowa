@@ -16,19 +16,21 @@ public class WorldMap {
     private final int height;
     private final TileType[][] terrainGrid;
 
-    private final ArrayList<BottleMachine> bottleMachines;
-    private final ArrayList<TrashBin> trashBins;
+    private final ArrayList<MapElement> elements;
+//    private final ArrayList<BottleMachine> bottleMachines;
+//    private final ArrayList<TrashBin> trashBins;
     private final ArrayList<Zone> zones;
-    private final ArrayList<Agent> agents; // DO TEGO BĘDZIE MIEĆ DOSTĘP SILNIK
+//    private final ArrayList<Agent> agents; // DO TEGO BĘDZIE MIEĆ DOSTĘP SILNIK
 
     public WorldMap(int width, int height) {
         this.width = width;
         this.height = height;
         this.terrainGrid = new TileType[height][width];
-        this.bottleMachines = new ArrayList<>();
-        this.trashBins = new ArrayList<>();
         this.zones = new ArrayList<>();
-        this.agents = new ArrayList<>();
+        this.elements = new ArrayList<>();
+//        this.bottleMachines = new ArrayList<>();
+//        this.trashBins = new ArrayList<>();
+//        this.agents = new ArrayList<>();
     }
 
     public void loadBackgroundFromAscii(String path) {
@@ -53,20 +55,57 @@ public class WorldMap {
         }
     }
 
-    public void addButelkomat(BottleMachine bottleMachine) {
-        if(bottleMachine.getPosition().getX() < 0 || bottleMachine.getPosition().getX() > this.width || bottleMachine.getPosition().getY() < 0 || bottleMachine.getPosition().getY() > this.height){
-            System.out.println("BLAD: Butelkomat poza mapa");
+    public void addElement(MapElement element) {
+        Position pos = element.getPosition();
+        if(pos.getX() < 0 || pos.getX() > this.width || pos.getY() < 0 || pos.getY() > this.height){
+            System.out.println("BLAD: Obiekt poza mapa");
             return;
         }
-        bottleMachines.add(bottleMachine);
+        elements.add(element);
     }
 
-    public void addTrashBin(TrashBin trashBin) {
-        if(trashBin.getPosition().getX() < 0 || trashBin.getPosition().getX() > this.width || trashBin.getPosition().getY() < 0 || trashBin.getPosition().getY() > this.height){
-            System.out.println("BLAD: Smietnik poza mapa");
-            return;
+    public Position nearestTrashBin(Position agentPosition) {
+        MapElement nearest = null;
+        int minDistance = Integer.MAX_VALUE;
+
+        for (MapElement element : elements) {
+
+            if (element instanceof TrashBin) {
+                int distance = calculateDistance(agentPosition, element.getPosition());
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearest = element;
+                }
+            }
         }
-        trashBins.add(trashBin);
+
+        if (nearest == null) {
+            return null;
+        }
+        return nearest.getPosition();
+    }
+
+    public Position nearestBottleMachine(Position agentPosition) {
+        MapElement nearest = null;
+        int minDistance = Integer.MAX_VALUE;
+
+        for (MapElement element : elements) {
+
+            if (element instanceof BottleMachine) {
+                int distance = calculateDistance(agentPosition, element.getPosition());
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearest = element;
+                }
+            }
+        }
+
+        if (nearest == null) {
+            return null;
+        }
+        return nearest.getPosition();
     }
 
     public void addZone(Zone zone) {
@@ -81,47 +120,97 @@ public class WorldMap {
         return Math.abs(p1.getX() - p2.getX()) + Math.abs(p1.getY() - p2.getY());
     }
 
-    public Position nearestTrashBin(Position agentPosition) {
-        TrashBin nearest = null;
-        int minDistance = Integer.MAX_VALUE;
-
-        for(TrashBin bin : trashBins) {
-            int distance = calculateDistance(agentPosition, bin.getPosition());
-
-            if (distance < minDistance) {
-                minDistance = distance;
-                nearest = bin;
+    public ArrayList<BottleMachine> getBottleMachines() {
+        ArrayList<BottleMachine> machines = new ArrayList<>();
+        for (MapElement element : elements) {
+            if (element instanceof BottleMachine) {
+                machines.add((BottleMachine) element);
             }
         }
-        if(nearest == null) {
-            return null;
-        }
-        return nearest.getPosition();
+        return machines;
     }
 
-    public Position nearestBottleMachine(Position agentPosition) {
-        BottleMachine nearest = null;
-        int minDistance = Integer.MAX_VALUE;
-
-        for(BottleMachine machine : bottleMachines) {
-            int distance = calculateDistance(agentPosition, machine.getPosition());
-
-            if (distance < minDistance) {
-                minDistance = distance;
-                nearest = machine;
+    public ArrayList<TrashBin> getTrashBins() {
+        ArrayList<TrashBin> bins = new ArrayList<>();
+        for (MapElement element : elements) {
+            if (element instanceof TrashBin) {
+                bins.add((TrashBin) element);
             }
         }
-        if(nearest == null) {
-            return null;
+        return bins;
+    }
+
+    public ArrayList<Agent> getAgents() {
+        ArrayList<Agent> agentsList = new ArrayList<>();
+        for (MapElement element : elements) {
+            if (element instanceof Agent) {
+                agentsList.add((Agent) element);
+            }
         }
-        return nearest.getPosition();
+        return agentsList;
+    }
+
+    public ArrayList<MapElement> getElements() {
+        return elements;
     }
 
     public int getWidth() { return width; }
     public int getHeight() { return height; }
     public TileType getTileType(int x, int y) { return terrainGrid[y][x]; }
-    public ArrayList<BottleMachine> getButelkomats() { return bottleMachines; }
-    public ArrayList<TrashBin> getTrashBins() { return trashBins; }
-    public ArrayList<Agent> getAgents() { return agents; }
     public ArrayList<Zone> getZones() { return zones; }
+//    public ArrayList<BottleMachine> getBottleMachines() { return bottleMachines; }
+//    public ArrayList<TrashBin> getTrashBins() { return trashBins; }
+//    public ArrayList<Agent> getAgents() { return agents; }
+    //            return null;
+//        if(nearest == null) {
+//        }
+//            }
+//                nearest = bin;
+//                minDistance = distance;
+//            if (distance < minDistance) {
+//
+//            int distance = calculateDistance(agentPosition, bin.getPosition());
+//        for(TrashBin bin : trashBins) {
+//
+//        int minDistance = Integer.MAX_VALUE;
+//        TrashBin nearest = null;
+//    public Position nearestTrashBin(Position agentPosition) {
+//    public void addButelkomat(BottleMachine bottleMachine) {
+//        if(bottleMachine.getPosition().getX() < 0 || bottleMachine.getPosition().getX() > this.width || bottleMachine.getPosition().getY() < 0 || bottleMachine.getPosition().getY() > this.height){
+//            System.out.println("BLAD: Butelkomat poza mapa");
+//            return;
+//        }
+//        bottleMachines.add(bottleMachine);
+//    }
+//
+//    public void addTrashBin(TrashBin trashBin) {
+//        if(trashBin.getPosition().getX() < 0 || trashBin.getPosition().getX() > this.width || trashBin.getPosition().getY() < 0 || trashBin.getPosition().getY() > this.height){
+//            System.out.println("BLAD: Smietnik poza mapa");
+//            return;
+//        }
+//        trashBins.add(trashBin);
+
+//    }
+//        }
+//        return nearest.getPosition();
+//    }
+//
+//    public Position nearestBottleMachine(Position agentPosition) {
+//        BottleMachine nearest = null;
+//        int minDistance = Integer.MAX_VALUE;
+//
+//        for(BottleMachine machine : bottleMachines) {
+//            int distance = calculateDistance(agentPosition, machine.getPosition());
+//
+//            if (distance < minDistance) {
+//                minDistance = distance;
+//                nearest = machine;
+//            }
+//        }
+//        if(nearest == null) {
+//            return null;
+//        }
+//        return nearest.getPosition();
+
+//    }
 }

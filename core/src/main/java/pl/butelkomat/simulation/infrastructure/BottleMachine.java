@@ -1,12 +1,13 @@
 package pl.butelkomat.simulation.infrastructure;
 
 import pl.butelkomat.simulation.item.Bottle;
+import pl.butelkomat.simulation.world.MapElement;
 import pl.butelkomat.simulation.world.Position;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class BottleMachine implements Interactable {
+public class BottleMachine implements MapElement {
     private final int capacity;
     private final ArrayList<Bottle> bottles;
     private int paperStock;

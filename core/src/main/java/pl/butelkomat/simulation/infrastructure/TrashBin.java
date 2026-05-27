@@ -1,11 +1,12 @@
 package pl.butelkomat.simulation.infrastructure;
 
 import pl.butelkomat.simulation.item.Bottle;
+import pl.butelkomat.simulation.world.MapElement;
 import pl.butelkomat.simulation.world.Position;
 
 import java.util.Stack;
 
-public class TrashBin implements Interactable{
+public class TrashBin implements MapElement {
     private final int capacity;
     private final Stack<Bottle> bottles; //wrzucamy butelki na stos, jak collector wyciąga je z kosza to bierze 'od gory'
     private Position position;

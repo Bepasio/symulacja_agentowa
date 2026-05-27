@@ -6,7 +6,7 @@ import pl.butelkomat.simulation.world.Position;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Butelkomat implements Interactable {
+public class BottleMachine implements Interactable {
     private final int capacity;
     private final ArrayList<Bottle> bottles;
     private int paperStock;
@@ -16,7 +16,7 @@ public class Butelkomat implements Interactable {
         return bottles.size() < capacity && paperStock > 0;
     }
 
-    public Butelkomat(int capacity, int paperStock, Position position) {
+    public BottleMachine(int capacity, int paperStock, Position position) {
         this.capacity = capacity;
         this.bottles = new ArrayList<>();
         this.paperStock = paperStock;

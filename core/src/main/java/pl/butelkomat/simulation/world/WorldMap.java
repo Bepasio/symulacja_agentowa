@@ -3,7 +3,7 @@ package pl.butelkomat.simulation.world;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import pl.butelkomat.simulation.agents.Agent;
-import pl.butelkomat.simulation.infrastructure.Butelkomat;
+import pl.butelkomat.simulation.infrastructure.BottleMachine;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
 
 import java.io.BufferedReader;
@@ -16,7 +16,7 @@ public class WorldMap {
     private final int height;
     private final TileType[][] terrainGrid;
 
-    private final ArrayList<Butelkomat> butelkomats;
+    private final ArrayList<BottleMachine> bottleMachines;
     private final ArrayList<TrashBin> trashBins;
     private final ArrayList<Zone> zones;
     private final ArrayList<Agent> agents; // DO TEGO BĘDZIE MIEĆ DOSTĘP SILNIK
@@ -25,7 +25,7 @@ public class WorldMap {
         this.width = width;
         this.height = height;
         this.terrainGrid = new TileType[height][width];
-        this.butelkomats = new ArrayList<>();
+        this.bottleMachines = new ArrayList<>();
         this.trashBins = new ArrayList<>();
         this.zones = new ArrayList<>();
         this.agents = new ArrayList<>();
@@ -53,12 +53,12 @@ public class WorldMap {
         }
     }
 
-    public void addButelkomat(Butelkomat butelkomat) {
-        if(butelkomat.getPosition().getX() < 0 || butelkomat.getPosition().getX() > this.width || butelkomat.getPosition().getY() < 0 || butelkomat.getPosition().getY() > this.height){
+    public void addButelkomat(BottleMachine bottleMachine) {
+        if(bottleMachine.getPosition().getX() < 0 || bottleMachine.getPosition().getX() > this.width || bottleMachine.getPosition().getY() < 0 || bottleMachine.getPosition().getY() > this.height){
             System.out.println("BLAD: Butelkomat poza mapa");
             return;
         }
-        butelkomats.add(butelkomat);
+        bottleMachines.add(bottleMachine);
     }
 
     public void addTrashBin(TrashBin trashBin) {
@@ -80,7 +80,7 @@ public class WorldMap {
     public int getWidth() { return width; }
     public int getHeight() { return height; }
     public TileType getTileType(int x, int y) { return terrainGrid[y][x]; }
-    public ArrayList<Butelkomat> getButelkomats() { return butelkomats; }
+    public ArrayList<BottleMachine> getButelkomats() { return bottleMachines; }
     public ArrayList<TrashBin> getTrashBins() { return trashBins; }
     public ArrayList<Agent> getAgents() { return agents; }
     public ArrayList<Zone> getZones() { return zones; }

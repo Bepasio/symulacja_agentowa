@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import pl.butelkomat.simulation.engine.SimulationEngine;
-import pl.butelkomat.simulation.infrastructure.Butelkomat;
+import pl.butelkomat.simulation.infrastructure.BottleMachine;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
 import pl.butelkomat.simulation.utils.DataLoader;
 import pl.butelkomat.simulation.world.WorldMap;
@@ -72,7 +72,7 @@ public class SimulationGame extends ApplicationAdapter {
 
         // Rysowanie infrastruktury (z Twoich plików txt)
         shapeRenderer.setColor(Color.GREEN);
-        for (Butelkomat b : map.getButelkomats()) {
+        for (BottleMachine b : map.getButelkomats()) {
             shapeRenderer.rect(b.getPosition().getX() * TILE_SIZE, (h - 1 - b.getPosition().getY()) * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
 

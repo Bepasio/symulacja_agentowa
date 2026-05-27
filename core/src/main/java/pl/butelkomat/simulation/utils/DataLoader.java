@@ -2,7 +2,7 @@ package pl.butelkomat.simulation.utils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import pl.butelkomat.simulation.infrastructure.Butelkomat;
+import pl.butelkomat.simulation.infrastructure.BottleMachine;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
 import pl.butelkomat.simulation.world.Position;
 import pl.butelkomat.simulation.world.WorldMap;
@@ -42,7 +42,7 @@ public class DataLoader {
                 int capacity = Integer.parseInt(data[0]);
                 int paperStock = Integer.parseInt(data[1]);
                 Position position = new Position(Integer.parseInt(data[2]), Integer.parseInt(data[3]));
-                worldMap.addButelkomat(new Butelkomat(capacity, paperStock, position));
+                worldMap.addButelkomat(new BottleMachine(capacity, paperStock, position));
             }
             reader.close();
             System.out.println("Załadowano butelkomaty z pliku: " + name);

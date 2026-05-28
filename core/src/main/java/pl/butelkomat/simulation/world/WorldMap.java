@@ -64,15 +64,16 @@ public class WorldMap {
         elements.add(element);
     }
 
-    public Position nearestTrashBin(Position agentPosition) {
+    public Position nearestTrashBin(Position agentPosition, ArrayList<Position> ignoredPositions) {
         MapElement nearest = null;
         int minDistance = Integer.MAX_VALUE;
 
         for (MapElement element : elements) {
 
             if (element instanceof TrashBin) {
-                int distance = calculateDistance(agentPosition, element.getPosition());
+                if (ignoredPositions != null && ignoredPositions.contains(element.getPosition())) continue;
 
+                int distance = calculateDistance(agentPosition, element.getPosition());
                 if (distance < minDistance) {
                     minDistance = distance;
                     nearest = element;
@@ -86,15 +87,16 @@ public class WorldMap {
         return nearest.getPosition();
     }
 
-    public Position nearestBottleMachine(Position agentPosition) {
+    public Position nearestBottleMachine(Position agentPosition, ArrayList<Position> ignoredPositions) {
         MapElement nearest = null;
         int minDistance = Integer.MAX_VALUE;
 
         for (MapElement element : elements) {
 
             if (element instanceof BottleMachine) {
-                int distance = calculateDistance(agentPosition, element.getPosition());
+                if (ignoredPositions != null && ignoredPositions.contains(element.getPosition())) continue;
 
+                int distance = calculateDistance(agentPosition, element.getPosition());
                 if (distance < minDistance) {
                     minDistance = distance;
                     nearest = element;

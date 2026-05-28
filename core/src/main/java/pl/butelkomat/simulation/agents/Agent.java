@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public abstract class Agent implements MapElement {
     protected Position position;
     protected int backpackCapacity;
-    protected ArrayList<Bottle> bottles;
+    public ArrayList<Bottle> bottles;
     protected Position currentTarget;
 
     public Agent(Position startPosition, int backpackCapacity) {

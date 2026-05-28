@@ -14,6 +14,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -26,9 +28,12 @@ import pl.butelkomat.simulation.engine.SimulationEngine;
 import pl.butelkomat.simulation.infrastructure.BottleMachine;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
 import pl.butelkomat.simulation.utils.DataLoader;
+import pl.butelkomat.simulation.utils.LoggerService;
 import pl.butelkomat.simulation.world.Position;
 import pl.butelkomat.simulation.world.WorldMap;
 import pl.butelkomat.simulation.world.ElementType;
+
+import java.util.ArrayList;
 
 public class SimulationGame extends ApplicationAdapter {
     private SimulationEngine engine;
@@ -41,6 +46,17 @@ public class SimulationGame extends ApplicationAdapter {
     private Skin skin;
     private Slider speedSlider;
     private Label speedLabel;
+
+    // etykiety statów
+    private Label consumersLabel;
+    private Label collectorsLabel;
+    private Label bottlesLabel;
+    private Label bottleMachinesLabel;
+    private Label trashBinsLabel;
+
+    // logi
+    private TextArea logsTextArea;
+    private ScrollPane logsScrollPane;
 
     // tekstury
     private Texture textureWater;
@@ -98,6 +114,8 @@ public class SimulationGame extends ApplicationAdapter {
 
     @Override
     public void create() {
+        LoggerService.getInstance().log("=== Starowanie symulacji ===");
+
         WorldMap worldMap = new WorldMap(90, 26);
 
         // 1. Ładowanie tła z ASCII
@@ -167,9 +185,47 @@ public class SimulationGame extends ApplicationAdapter {
                 speedLabel.setText(String.format("Predkosc: %.1fx", newSpeed));
             }
         });
-        table.add(speedSlider).width(150).row();
+        table.add(speedSlider).width(150).padBottom(15).row();
+
+        // full staty
+        // Inicjalizacja etykiet statystyk
+        consumersLabel = new Label("Konsumenci: 0", skin);
+        table.add(consumersLabel).padBottom(3).row();
+
+        collectorsLabel = new Label("Kolektorzy: 0", skin);
+        table.add(collectorsLabel).padBottom(3).row();
+
+        bottlesLabel = new Label("Butelki: 0", skin);
+        table.add(bottlesLabel).padBottom(3).row();
+
+        bottleMachinesLabel = new Label("Butelkomaty: 0", skin);
+        table.add(bottleMachinesLabel).padBottom(3).row();
+
+        trashBinsLabel = new Label("Smietniky: 0", skin);
+        table.add(trashBinsLabel).padBottom(3).row();
 
         stage.addActor(table);
+
+        // PANEL LOGÓW
+        Table logsTable = new Table();
+        logsTable.setFillParent(true);
+        logsTable.bottom().left().pad(10);
+
+        // etykieta "Logi"
+        Label logsTitle = new Label("Logi symulacji:", skin);
+        logsTable.add(logsTitle).padBottom(5).row();
+
+        // pole tekstowe dla logów
+        logsTextArea = new TextArea("", skin);
+        logsTextArea.setDisabled(true);
+        logsTextArea.setSize(350, 150);
+
+        // scroll dla tekstu
+        logsScrollPane = new ScrollPane(logsTextArea, skin);
+        logsScrollPane.setSize(350, 150);
+        logsTable.add(logsScrollPane).width(350).height(150).row();
+
+        stage.addActor(logsTable);
     }
 
     @Override
@@ -214,7 +270,7 @@ public class SimulationGame extends ApplicationAdapter {
         }
 
         for (Agent a : map.getAgents()) {
-            // Sprawdzamy, kim jest agent, żeby dobrać kolor
+            // dobieranie koloru agenta
             Texture tex;
 
             if (a instanceof Consumer) {
@@ -228,9 +284,68 @@ public class SimulationGame extends ApplicationAdapter {
 
         spriteBatch.end();
 
+        // aktualizacja statystyk
+        updateStatistics();
+
+        // aktualizacja logów
+        updateLogs();
+
         // aktualizacja i renderowanie UI
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
+    }
+
+    /**
+     * aktualizuje etykiety ze statystykami mapy
+     */
+    private void updateStatistics() {
+        WorldMap map = engine.getMap();
+        ArrayList<Agent> agents = map.getAgents();
+
+        // liczenie konsumentów i kolektorów
+        int consumers = 0;
+        int collectors = 0;
+        int totalBottles = 0;
+
+        for (Agent agent : agents) {
+            if (agent instanceof Consumer) {
+                consumers++;
+            } else if (agent instanceof Collector) {
+                collectors++;
+            }
+            // dodawanie butli z plecaka
+            totalBottles += agent.bottles.size();
+        }
+
+        int bottleMachines = map.getBottleMachines().size();
+        int trashBins = map.getTrashBins().size();
+
+        // aktualizacja etykiet
+        consumersLabel.setText("Konsumenci: " + consumers);
+        collectorsLabel.setText("Kolektorzy: " + collectors);
+        bottlesLabel.setText("Butelki: " + totalBottles);
+        bottleMachinesLabel.setText("Butelkomaty: " + bottleMachines);
+        trashBinsLabel.setText("Smietniky: " + trashBins);
+    }
+
+    /**
+     * aktualizuje pole logów
+     */
+    private void updateLogs() {
+        LoggerService logger = LoggerService.getInstance();
+        ArrayList<String> allLogs = logger.getLogs();
+
+        // weź ostatnie 20 logów
+        int startIdx = Math.max(0, allLogs.size() - 20);
+        StringBuilder logsText = new StringBuilder();
+
+        for (int i = startIdx; i < allLogs.size(); i++) {
+            logsText.append(allLogs.get(i)).append("\n");
+        }
+
+        logsTextArea.setText(logsText.toString());
+        // scroll do dołu
+        logsScrollPane.setScrollPercentY(1.0f);
     }
 
     @Override

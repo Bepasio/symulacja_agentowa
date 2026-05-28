@@ -5,6 +5,7 @@ import com.badlogic.gdx.files.FileHandle;
 import pl.butelkomat.simulation.agents.Agent;
 import pl.butelkomat.simulation.infrastructure.BottleMachine;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
+import pl.butelkomat.simulation.utils.LoggerService;
 
 import java.io.BufferedReader;
 import java.util.ArrayList;
@@ -51,14 +52,14 @@ public class WorldMap {
             }
             reader.close();
         } catch (Exception e) {
-            System.out.println("Błąd ładowania mapy ASCII: " + e.getMessage());
+            LoggerService.getInstance().logError("Błąd ładowania mapy ASCII: " + e.getMessage());
         }
     }
 
     public void addElement(MapElement element) {
         Position pos = element.getPosition();
         if(pos.getX() < 0 || pos.getX() > this.width || pos.getY() < 0 || pos.getY() > this.height){
-            System.out.println("BLAD: Obiekt poza mapa");
+            LoggerService.getInstance().logError("Obiekt poza mapa");
             return;
         }
         elements.add(element);
@@ -110,7 +111,7 @@ public class WorldMap {
 
     public void addZone(Zone zone) {
         if (zone.getStartX() < 0 || zone.getEndX() > this.width || zone.getStartY() < 0 || zone.getEndY() > this.height){
-            System.out.println("BLAD: Strefa wychodzi poza mape");
+            LoggerService.getInstance().logError("Strefa wychodzi poza mape");
             return;
         }
         zones.add(zone);

@@ -9,6 +9,7 @@ import pl.butelkomat.simulation.item.Bottle;
 import pl.butelkomat.simulation.world.MapElement;
 import pl.butelkomat.simulation.world.Position;
 import pl.butelkomat.simulation.world.WorldMap;
+import pl.butelkomat.simulation.utils.LoggerService;
 
 //    generuje butle (generateBottle), musi zdecydowac gdzie isc (decideTarget), musi isc do targetu (moveToTarget)
 //    ma liste ktora zawiera butelki do pozbycia sie
@@ -67,13 +68,13 @@ public class Consumer extends Agent {
                                         break;
                                     }
                                 }
-                                System.out.println("Consumer wyrzucil " + thrownAway + " butelek do kosza. W plecaku zostalo: " + bottles.size());
-                            } else if (element instanceof BottleMachine machine) {
-                                int accepted = machine.processDeposit(this.bottles);
-                                System.out.println("Consumer oddal " + accepted + " butelek do butelkomatu. W plecaku zostalo: " + bottles.size());
+                                 LoggerService.getInstance().log("Consumer wyrzucil " + thrownAway + " butelek do kosza. W plecaku zostalo: " + bottles.size());
+                             } else if (element instanceof BottleMachine machine) {
+                                 int accepted = machine.processDeposit(this.bottles);
+                                 LoggerService.getInstance().log("Consumer oddal " + accepted + " butelek do butelkomatu. W plecaku zostalo: " + bottles.size());
 
-                                if (!bottles.isEmpty()) {
-                                    System.out.println("Maszyna zepsuta/pelna! Consumer idzie do smietnika.");
+                                 if (!bottles.isEmpty()) {
+                                     LoggerService.getInstance().log("Maszyna zepsuta/pelna! Consumer idzie do smietnika.");
                                     currentTarget = map.nearestTrashBin(position);
                                     return;
                                 }

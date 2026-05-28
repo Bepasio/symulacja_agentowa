@@ -39,9 +39,9 @@ public class DataLoader {
                 }
             }
             reader.close();
-            System.out.println("Załadowano śmietniki z pliku: " + name);
+            LoggerService.getInstance().log("Załadowano śmietniki z pliku: " + name);
         } catch (Exception e) {
-            System.out.println("Błąd ładowania śmietników: " + e.getMessage());
+            LoggerService.getInstance().logError("Błąd ładowania śmietników: " + e.getMessage());
         }
 //dodane z palca tymczasowo
     }
@@ -59,9 +59,9 @@ public class DataLoader {
                                           Double.parseDouble(data[5])));
             }
             reader.close();
-            System.out.println("Załadowano strefy z pliku: " + name);
+            LoggerService.getInstance().log("Załadowano strefy z pliku: " + name);
         } catch (Exception e) {
-            System.out.println("Błąd ładowania stref: " + e.getMessage());
+            LoggerService.getInstance().logError("Błąd ładowania stref: " + e.getMessage());
         }
     }
 }

@@ -52,7 +52,7 @@ public class Consumer extends Agent {
                     if (nearestTrashBin == null && nearestBottleMachine == null) {
                         System.out.println("Consumer" + id + ": wszytko pelne/odrzucone. Nie udalo sie wyznaczyc celu");
                         visitedTargets.clear();
-                        bottles.clear();
+//                        bottles.clear();
                     } else if (nearestTrashBin == null) currentTarget = nearestBottleMachine;
                     else if (nearestBottleMachine == null) currentTarget = nearestTrashBin;
                     else if (map.calculateDistance(position, nearestBottleMachine) < map.calculateDistance(position, nearestTrashBin)) {

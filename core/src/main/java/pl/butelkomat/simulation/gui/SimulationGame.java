@@ -187,7 +187,7 @@ public class SimulationGame extends ApplicationAdapter {
 
         // slider do kontroli prędkości (na razie zakres 0.1x do 5.0x)
         // zakres 30x na razie bo powyzej juz laguje animacja
-        speedSlider = new Slider(0.1f, 30.0f, 0.1f, false, skin);
+        speedSlider = new Slider(0.1f, 300.0f, 0.1f, false, skin);
         speedSlider.setValue(1.0f);
 
         // a tu macie setowanie koloru suwaka do prędkości (na razie)

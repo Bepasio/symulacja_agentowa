@@ -58,7 +58,7 @@ public class WorldMap {
 
     public void addElement(MapElement element) {
         Position pos = element.getPosition();
-        if(pos.getX() < 0 || pos.getX() > this.width || pos.getY() < 0 || pos.getY() > this.height){
+        if(pos.getX() < 0 || pos.getX() >= this.width || pos.getY() < 0 || pos.getY() >= this.height){
             LoggerService.getInstance().logError("Obiekt poza mapa");
             return;
         }

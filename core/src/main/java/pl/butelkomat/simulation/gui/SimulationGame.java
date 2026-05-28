@@ -20,11 +20,13 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import pl.butelkomat.simulation.agents.Agent;
+import pl.butelkomat.simulation.agents.Collector;
 import pl.butelkomat.simulation.agents.Consumer;
 import pl.butelkomat.simulation.engine.SimulationEngine;
 import pl.butelkomat.simulation.infrastructure.BottleMachine;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
 import pl.butelkomat.simulation.utils.DataLoader;
+import pl.butelkomat.simulation.world.Position;
 import pl.butelkomat.simulation.world.WorldMap;
 import pl.butelkomat.simulation.world.ElementType;
 
@@ -107,6 +109,11 @@ public class SimulationGame extends ApplicationAdapter {
         loader.loadElements(worldMap, "cfg/butelkomats.txt", ElementType.BOTTLE_MACHINE);
         loader.loadElements(worldMap, "cfg/trashBins.txt", ElementType.TRASH_BIN);
 
+        //tymczaowo dodani
+        worldMap.addElement(new Consumer(new Position(10, 10)));
+        worldMap.addElement(new Consumer(new Position(15, 5)));
+        worldMap.addElement(new Collector(new Position(40, 12)));
+
         engine = new SimulationEngine(worldMap);
         engine.getTimeManager().setSpeedMultiplier(1.0f);
 
@@ -143,7 +150,7 @@ public class SimulationGame extends ApplicationAdapter {
         table.add(speedLabel).padBottom(5).row();
 
         // slider do kontroli prędkości (na razie zakres 0.1x do 5.0x)
-        speedSlider = new Slider(0.1f, 5.0f, 0.1f, false, skin);
+        speedSlider = new Slider(0.1f, 100.0f, 0.1f, false, skin);
         speedSlider.setValue(1.0f);
 
         // a tu macie setowanie koloru suwaka do prędkości (na razie)

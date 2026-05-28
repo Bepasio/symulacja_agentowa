@@ -32,6 +32,7 @@ public class Consumer extends Agent {
                 if (Math.random() < 0.05) {
                     if (bottles.isEmpty()) {
                         visitedTargets.clear();
+                        currentTarget = null;
                     }
 
                     boolean isRefundable = Math.random() < 0.5;
@@ -40,24 +41,30 @@ public class Consumer extends Agent {
                 }
             }
 
-            if (!bottles.isEmpty() && currentTarget == null) {
-                Position nearestTrashBin = map.nearestTrashBin(position, visitedTargets);
-                Position nearestBottleMachine = null;
-                if(hasRefundableBottle()) {
-                    nearestBottleMachine = map.nearestBottleMachine(position, visitedTargets);
-                }
+            if (currentTarget == null) {
+                if(!bottles.isEmpty()) {
+                    Position nearestTrashBin = map.nearestTrashBin(position, visitedTargets);
+                    Position nearestBottleMachine = null;
+                    if (hasRefundableBottle()) {
+                        nearestBottleMachine = map.nearestBottleMachine(position, visitedTargets);
+                    }
 
-                if (nearestTrashBin == null && nearestBottleMachine == null) {
-                    System.out.println("Consumer"+id+": wszytko pelne/odrzucone. Nie udalo sie wyznaczyc celu");
-                    visitedTargets.clear();
-                    bottles.clear();
+                    if (nearestTrashBin == null && nearestBottleMachine == null) {
+                        System.out.println("Consumer" + id + ": wszytko pelne/odrzucone. Nie udalo sie wyznaczyc celu");
+                        visitedTargets.clear();
+                        bottles.clear();
+                    } else if (nearestTrashBin == null) currentTarget = nearestBottleMachine;
+                    else if (nearestBottleMachine == null) currentTarget = nearestTrashBin;
+                    else if (map.calculateDistance(position, nearestBottleMachine) < map.calculateDistance(position, nearestTrashBin)) {
+                        currentTarget = nearestBottleMachine;
+                    } else {
+                        currentTarget = nearestTrashBin;
+                    }
                 }
-                    else if (nearestTrashBin == null) currentTarget = nearestBottleMachine;
-                else if (nearestBottleMachine == null) currentTarget = nearestTrashBin;
-                else if (map.calculateDistance(position, nearestBottleMachine) < map.calculateDistance(position, nearestTrashBin)) {
-                    currentTarget = nearestBottleMachine;
-                } else {
-                    currentTarget = nearestTrashBin;
+                else{
+                    int randomX = (int) (Math.random() * 90) + 1;
+                    int randomY = (int) (Math.random() * 26) + 1;
+                    currentTarget = new Position(randomX, randomY);
                 }
             }
 

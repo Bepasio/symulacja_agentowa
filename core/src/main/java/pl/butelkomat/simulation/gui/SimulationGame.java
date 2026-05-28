@@ -128,9 +128,23 @@ public class SimulationGame extends ApplicationAdapter {
         loader.loadElements(worldMap, "cfg/trashBins.txt", ElementType.TRASH_BIN);
 
         //tymczaowo dodani
+        // --- CONSUMERZY (Mieszkańcy generujący śmieci) ---
         worldMap.addElement(new Consumer(new Position(10, 10)));
         worldMap.addElement(new Consumer(new Position(15, 5)));
-        worldMap.addElement(new Collector(new Position(40, 12)));
+        worldMap.addElement(new Consumer(new Position(5, 22)));
+        worldMap.addElement(new Consumer(new Position(28, 16)));
+        worldMap.addElement(new Consumer(new Position(42, 13)));
+        worldMap.addElement(new Consumer(new Position(50, 24)));
+        worldMap.addElement(new Consumer(new Position(63, 5)));
+        worldMap.addElement(new Consumer(new Position(72, 21)));
+        worldMap.addElement(new Consumer(new Position(82, 12)));
+        worldMap.addElement(new Consumer(new Position(87, 2)));
+        worldMap.addElement(new Consumer(new Position(35, 8)));
+
+        // --- COLLECTORZY (Śmieciarki / Służby oczyszczania) ---
+        worldMap.addElement(new Collector(new Position(40, 12))); // Główna baza w centrum
+        worldMap.addElement(new Collector(new Position(2, 2)));   // Północno-zachodni rewir
+        worldMap.addElement(new Collector(new Position(85, 23))); // Południowo-wschodni rewir
 
         engine = new SimulationEngine(worldMap);
         engine.getTimeManager().setSpeedMultiplier(1.0f);
@@ -147,9 +161,13 @@ public class SimulationGame extends ApplicationAdapter {
         textureGrass = createPatternTexture(new Color(0.2f, 0.7f, 0.2f, 1.0f), new Color(0.1f, 0.5f, 0.1f, 1.0f));
         texturePath = createTextureFromColor(new Color(0.9f, 0.7f, 0.5f, 1.0f));  // Beż/piasek
         textureWall = createTextureFromColor(new Color(0.5f, 0.5f, 0.5f, 1.0f));   // Szarość dla ścian
-        textureBottle = createTextureFromColor(new Color(0.2f, 0.8f, 0.2f, 1.0f)); // Zielony
-        textureTrash = createTextureFromColor(new Color(0.7f, 0.7f, 0.7f, 1.0f));  // Szary
+//        textureBottle = createTextureFromColor(new Color(0.2f, 0.8f, 0.2f, 1.0f)); // Zielony
+//        textureTrash = createTextureFromColor(new Color(0.7f, 0.7f, 0.7f, 1.0f));  // Szary
+        // Jasno szary (Śmietnik)
+        textureTrash = createTextureFromColor(new Color(0.8f, 0.8f, 0.8f, 1.0f));
 
+        // Wyraźny żółty (Butelkomat)
+        textureBottle = createTextureFromColor(new Color(1.0f, 0.9f, 0.1f, 1.0f));
         textureConsumer = createTextureFromColor(new Color(0.8f, 0.2f, 0.2f, 1.0f)); // Czerwony consumer
         textureCollector = createTextureFromColor(new Color(0.2f, 0.2f, 0.8f, 1.0f)); // Niebieski collector
 
@@ -168,7 +186,8 @@ public class SimulationGame extends ApplicationAdapter {
         table.add(speedLabel).padBottom(5).row();
 
         // slider do kontroli prędkości (na razie zakres 0.1x do 5.0x)
-        speedSlider = new Slider(0.1f, 100.0f, 0.1f, false, skin);
+        // zakres 30x na razie bo powyzej juz laguje animacja
+        speedSlider = new Slider(0.1f, 30.0f, 0.1f, false, skin);
         speedSlider.setValue(1.0f);
 
         // a tu macie setowanie koloru suwaka do prędkości (na razie)

@@ -73,7 +73,7 @@ public class Consumer extends Agent {
                 boolean interacted = false;
                 if (position.equals(currentTarget)) {
                     for (MapElement element : map.getElements()) {
-                        if (element.getPosition().equals(this.position)) {
+                        if (element.getPosition().equals(position)) {
 
                             if (element instanceof TrashBin bin) {
                                 int thrownAway = 0;

@@ -16,12 +16,16 @@ public abstract class Agent implements MapElement {
     protected int backpackCapacity;
     public ArrayList<Bottle> bottles;
     protected Position currentTarget;
+    protected ArrayList<Position> visitedTargets;
+    protected int id;
 
-    public Agent(Position startPosition, int backpackCapacity) {
+    public Agent(Position startPosition, int backpackCapacity, int id) {
         this.position = startPosition;
         this.backpackCapacity = backpackCapacity;
         this.bottles = new ArrayList<>(); // Dajemy agentowi pusty plecak na start
         this.currentTarget = null;
+        this.visitedTargets = new ArrayList<>();
+        this.id = id;
     }
 
     public Position getPosition() {
@@ -34,10 +38,10 @@ public abstract class Agent implements MapElement {
 
     public Position getTarget(ElementType type, WorldMap map) {
         if (type == ElementType.BOTTLE_MACHINE) {
-            return map.nearestBottleMachine(position);
+            return map.nearestBottleMachine(position, visitedTargets);
         }
         if (type == ElementType.TRASH_BIN) {
-            return map.nearestTrashBin(position);
+            return map.nearestTrashBin(position, visitedTargets);
         }
         return null;
     }

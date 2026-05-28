@@ -43,10 +43,7 @@ public class DataLoader {
         } catch (Exception e) {
             System.out.println("Błąd ładowania śmietników: " + e.getMessage());
         }
-
-        worldMap.addElement(new Consumer(new Position(10, 10)));
-        worldMap.addElement(new Consumer(new Position(15, 5)));
-        worldMap.addElement(new Collector(new Position(40, 12)));
+//dodane z palca tymczasowo
     }
 
     public void loadZones(WorldMap worldMap, String name) {

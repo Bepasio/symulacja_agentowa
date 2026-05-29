@@ -151,6 +151,18 @@ public class WorldMap {
         return elements;
     }
 
+//    public boolean isWalkable(int x, int y) {
+//        // Zabezpieczenie przed wyjściem poza mapę
+//        if (x < 0 || x >= width || y < 0 || y >= height) return false;
+//
+//        // Blokada wejścia do wody i w ściany
+//        if (terrainGrid[y][x] == TileType.WATER || terrainGrid[y][x] == TileType.OBSTACLE) {
+//            return false;
+//        }
+//
+//        return true;
+//    }
+
     public int getWidth() { return width; }
     public int getHeight() { return height; }
     public TileType getTileType(int x, int y) { return terrainGrid[y][x]; }

@@ -7,6 +7,7 @@ import java.util.concurrent.*;
 import pl.butelkomat.simulation.infrastructure.BottleMachine;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
 import pl.butelkomat.simulation.item.Bottle;
+import pl.butelkomat.simulation.utils.LoggerService;
 import pl.butelkomat.simulation.world.MapElement;
 import pl.butelkomat.simulation.world.Position;
 import pl.butelkomat.simulation.world.WorldMap;
@@ -37,7 +38,7 @@ public class Consumer extends Agent {
 
                     boolean isRefundable = Math.random() < 0.5;
                     bottles.add(new Bottle(isRefundable));
-                    System.out.println("Consumer" + id + " wygenerowal butelke isRefundable=" + isRefundable);
+                    LoggerService.getInstance().log("Consumer" + id + " wygenerowal butelke isRefundable=" + isRefundable);
                 }
             }
 
@@ -89,19 +90,19 @@ public class Consumer extends Agent {
                                         break;
                                     }
                                 }
-                                System.out.println("Consumer" + id + " wyrzucil " + thrownAway + " butelek do kosza. W plecaku zostalo: " + bottles.size());
+                                LoggerService.getInstance().log("Consumer" + id + " wyrzucil " + thrownAway + " butelek do kosza. W plecaku zostalo: " + bottles.size());
                                 interacted = true;
                                 break;
                             } else if (element instanceof BottleMachine machine) {
                                 int accepted = machine.processDeposit(this.bottles);
-                                System.out.println("Consumer" + id + " oddal " + accepted + " butelek do butelkomatu. W plecaku zostalo: " + bottles.size());
+                                LoggerService.getInstance().log("Consumer" + id + " oddal " + accepted + " butelek do butelkomatu. W plecaku zostalo: " + bottles.size());
                                 interacted = true;
                                 break;
                             }
                         }
                     }
                         if (interacted && !bottles.isEmpty()) {
-                            System.out.println("Consumer"+id+" Obiekt pelny lub odrzucil butelki! Dodaje go do czarnej listy (visitedTargets).");
+                            LoggerService.getInstance().log("Consumer" + id + " Obiekt pelny lub odrzucil butelki! Dodaje go do czarnej listy.");
                             visitedTargets.add(currentTarget);
                         }
                         currentTarget = null;

@@ -3,6 +3,7 @@ package pl.butelkomat.simulation.agents;
 import pl.butelkomat.simulation.infrastructure.BottleMachine;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
 import pl.butelkomat.simulation.item.Bottle;
+import pl.butelkomat.simulation.utils.LoggerService;
 import pl.butelkomat.simulation.world.MapElement;
 import pl.butelkomat.simulation.world.Position;
 import pl.butelkomat.simulation.world.WorldMap;
@@ -77,15 +78,15 @@ public class Collector extends Agent {
                                     bin.addBottle(rejectedBottles.pop());
                                 }
 
-                                System.out.println("Collector-" + id + " wyciagnal " + collectedCount + " butelek KAUCYJNYCH z kosza. W plecaku:" + bottles.size() + "/20");
+                                LoggerService.getInstance().log("Collector-" + id + " wyciagnal " + collectedCount + " butelek KAUCYJNYCH z kosza. W plecaku:" + bottles.size() + "/20");
                                 visitedTargets.add(currentTarget);
                                 break;
                             } else if (element instanceof BottleMachine machine && isFull) {
                                 int accepted = machine.processDeposit(this.bottles);
-                                System.out.println("Collector-" + id + " oddal " + accepted + " butelek do butelkomatu.");
+                                LoggerService.getInstance().log("Collector-" + id + " oddal " + accepted + " butelek do butelkomatu.");
 
                                 if (!bottles.isEmpty()) {
-                                    System.out.println("Collector-" + id + ": nie oddano wszystkiego, pozostalo" + bottles.size() + "/20 butelek");
+                                    LoggerService.getInstance().log("Collector-" + id + ": nie oddano wszystkiego, pozostalo " + bottles.size() + "/20 butelek");
                                     visitedTargets.add(currentTarget);
                                 } else {
                                     visitedTargets.clear();

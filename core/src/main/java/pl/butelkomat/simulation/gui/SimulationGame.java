@@ -55,6 +55,8 @@ public class SimulationGame extends ApplicationAdapter {
     private Label wholeBottlesLabel;
     private Label consumerBottlesLabel;
     private Label collectorBottlesLabel;
+    private Label bottleMachinesBottleLabel;
+    private Label trashBinsBottleLabel;
     private Label bottleMachinesLabel;
     private Label trashBinsLabel;
 
@@ -219,7 +221,7 @@ public class SimulationGame extends ApplicationAdapter {
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
                 //zmienia stan w simulationEngine
                 engine.togglePause();
-                
+
                 if (engine.isPaused()) {
                     pauseButton.setText("Wznow");
                     LoggerService.getInstance().log("--- SYMULACJA WSTRZYMANA ---");
@@ -258,6 +260,12 @@ public class SimulationGame extends ApplicationAdapter {
 
         collectorBottlesLabel = new Label("Butelki: 0", skin);
         table.add(collectorBottlesLabel).padBottom(3).row();
+
+        bottleMachinesBottleLabel = new Label("Butelki: 0", skin);
+        table.add(bottleMachinesBottleLabel).padBottom(3).row();
+
+        trashBinsBottleLabel = new Label("Butelki: 0", skin);
+        table.add(trashBinsBottleLabel).padBottom(3).row();
 
 
         stage.addActor(table);
@@ -367,6 +375,8 @@ public class SimulationGame extends ApplicationAdapter {
         int totalBottles = 0;
         int collectorBottles = 0;
         int consumerBottles = 0;
+        int machineBottles = 0;
+        int trashBinBottles = 0;
         // zlicza wszystkie butelki jakie sa w obiegu (w smietnikach/butelkomatach/plecakach)
         for (MapElement element : elements) {
             if (element instanceof Consumer) {
@@ -375,6 +385,10 @@ public class SimulationGame extends ApplicationAdapter {
             } else if (element instanceof Collector) {
                 collectors++;
                 collectorBottles += element.getBottlesAmount();
+            } else if (element instanceof TrashBin) {
+                trashBinBottles += element.getBottlesAmount();
+            } else if (element instanceof BottleMachine) {
+                machineBottles += element.getBottlesAmount();
             }
             // dodawanie butli z plecaka
             totalBottles += element.getBottlesAmount();
@@ -386,11 +400,15 @@ public class SimulationGame extends ApplicationAdapter {
         // aktualizacja etykiet
         consumersLabel.setText("Konsumenci: " + consumers);
         collectorsLabel.setText("Kolektorzy: " + collectors);
-        wholeBottlesLabel.setText("Wszystkie butelki w obiegu: " + totalBottles);
+        bottleMachinesLabel.setText("Butelkomaty: " + bottleMachines);
+        trashBinsLabel.setText("Smietniki: " + trashBins);
+
         collectorBottlesLabel.setText("Wszystkie butelki collectorow: " + collectorBottles);
         consumerBottlesLabel.setText("Wszystkie butelki consumerow: " + consumerBottles);
-        bottleMachinesLabel.setText("Butelkomaty: " + bottleMachines);
-        trashBinsLabel.setText("Smietniky: " + trashBins);
+
+        wholeBottlesLabel.setText("Wszystkie butelki w obiegu: " + totalBottles);
+        bottleMachinesBottleLabel.setText("Wszystkie butelki w butelkomatach: " + machineBottles);
+        trashBinsBottleLabel.setText("Wszystkie butelki w smietnikach: " + trashBinBottles);
     }
 
     /**

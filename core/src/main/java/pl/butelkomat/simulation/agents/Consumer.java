@@ -70,6 +70,7 @@ public class Consumer extends Agent {
 
             if (currentTarget != null) {
                 moveTowards(currentTarget);
+
                 boolean interacted = false;
                 if (position.equals(currentTarget)) {
                     for (MapElement element : map.getElements()) {

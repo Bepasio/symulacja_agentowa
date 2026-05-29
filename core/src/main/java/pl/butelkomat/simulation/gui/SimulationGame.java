@@ -228,7 +228,7 @@ public class SimulationGame extends ApplicationAdapter {
         // PANEL LOGÓW
         Table logsTable = new Table();
         logsTable.setFillParent(true);
-        logsTable.bottom().left().pad(10);
+        logsTable.top().right().pad(10);
 
         // etykieta "Logi"
         Label logsTitle = new Label("Logi symulacji:", skin);

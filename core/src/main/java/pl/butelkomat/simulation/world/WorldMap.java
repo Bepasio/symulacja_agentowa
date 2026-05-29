@@ -18,10 +18,7 @@ public class WorldMap {
     private final TileType[][] terrainGrid;
 
     private final ArrayList<MapElement> elements;
-//    private final ArrayList<BottleMachine> bottleMachines;
-//    private final ArrayList<TrashBin> trashBins;
     private final ArrayList<Zone> zones;
-//    private final ArrayList<Agent> agents; // DO TEGO BĘDZIE MIEĆ DOSTĘP SILNIK
 
     public WorldMap(int width, int height) {
         this.width = width;
@@ -29,9 +26,6 @@ public class WorldMap {
         this.terrainGrid = new TileType[height][width];
         this.zones = new ArrayList<>();
         this.elements = new ArrayList<>();
-//        this.bottleMachines = new ArrayList<>();
-//        this.trashBins = new ArrayList<>();
-//        this.agents = new ArrayList<>();
     }
 
     public void loadBackgroundFromAscii(String path) {

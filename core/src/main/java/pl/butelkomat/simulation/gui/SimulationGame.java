@@ -29,9 +29,11 @@ import pl.butelkomat.simulation.infrastructure.BottleMachine;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
 import pl.butelkomat.simulation.utils.DataLoader;
 import pl.butelkomat.simulation.utils.LoggerService;
+import pl.butelkomat.simulation.world.MapElement;
 import pl.butelkomat.simulation.world.Position;
 import pl.butelkomat.simulation.world.WorldMap;
 import pl.butelkomat.simulation.world.ElementType;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 
 import java.util.ArrayList;
 
@@ -50,7 +52,9 @@ public class SimulationGame extends ApplicationAdapter {
     // etykiety statów
     private Label consumersLabel;
     private Label collectorsLabel;
-    private Label bottlesLabel;
+    private Label wholeBottlesLabel;
+    private Label consumerBottlesLabel;
+    private Label collectorBottlesLabel;
     private Label bottleMachinesLabel;
     private Label trashBinsLabel;
 
@@ -68,6 +72,9 @@ public class SimulationGame extends ApplicationAdapter {
 
     private Texture textureConsumer;
     private Texture textureCollector;
+
+    //czas
+    private Label timeLabel;
 
     /**
      * Tworzy teksturę PNG o rozmiarze TILE_SIZE x TILE_SIZE z danym kolorem
@@ -206,6 +213,30 @@ public class SimulationGame extends ApplicationAdapter {
         });
         table.add(speedSlider).width(150).padBottom(15).row();
 
+        TextButton pauseButton = new TextButton("Pauza", skin);
+        pauseButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+                // Przełączamy stan w silniku
+                engine.togglePause();
+
+                // Zmieniamy tekst na przycisku w zależności od stanu
+                if (engine.isPaused()) {
+                    pauseButton.setText("Wznow");
+                    LoggerService.getInstance().log("--- SYMULACJA WSTRZYMANA ---");
+                } else {
+                    pauseButton.setText("Pauza");
+                    LoggerService.getInstance().log("--- SYMULACJA WZNOWIONA ---");
+                }
+            }
+        });
+        table.add(pauseButton).width(150).padBottom(20).row();
+
+        //czas
+        timeLabel = new Label("Zegar: Poniedzialek 00:00", skin);
+        timeLabel.setColor(Color.YELLOW);
+        table.add(timeLabel).padBottom(15).row();
+
         // full staty
         // Inicjalizacja etykiet statystyk
         consumersLabel = new Label("Konsumenci: 0", skin);
@@ -214,14 +245,21 @@ public class SimulationGame extends ApplicationAdapter {
         collectorsLabel = new Label("Kolektorzy: 0", skin);
         table.add(collectorsLabel).padBottom(3).row();
 
-        bottlesLabel = new Label("Butelki: 0", skin);
-        table.add(bottlesLabel).padBottom(3).row();
-
         bottleMachinesLabel = new Label("Butelkomaty: 0", skin);
         table.add(bottleMachinesLabel).padBottom(3).row();
 
         trashBinsLabel = new Label("Smietniky: 0", skin);
         table.add(trashBinsLabel).padBottom(3).row();
+
+        wholeBottlesLabel = new Label("Butelki: 0", skin);
+        table.add(wholeBottlesLabel).padBottom(3).row();
+
+        consumerBottlesLabel = new Label("Butelki: 0", skin);
+        table.add(consumerBottlesLabel).padBottom(3).row();
+
+        collectorBottlesLabel = new Label("Butelki: 0", skin);
+        table.add(collectorBottlesLabel).padBottom(3).row();
+
 
         stage.addActor(table);
 
@@ -319,21 +357,28 @@ public class SimulationGame extends ApplicationAdapter {
      */
     private void updateStatistics() {
         WorldMap map = engine.getMap();
-        ArrayList<Agent> agents = map.getAgents();
+        ArrayList<MapElement> elements = map.getElements();
+
+        //aktualizacja zegara
+        timeLabel.setText(engine.getTimeManager().getFormattedTime());
 
         // liczenie konsumentów i kolektorów
         int consumers = 0;
         int collectors = 0;
         int totalBottles = 0;
-
-        for (Agent agent : agents) {
-            if (agent instanceof Consumer) {
+        int collectorBottles = 0;
+        int consumerBottles = 0;
+        // zlicza wszystkie butelki jakie sa w obiegu (w smietnikach/butelkomatach/plecakach)
+        for (MapElement element : elements) {
+            if (element instanceof Consumer) {
                 consumers++;
-            } else if (agent instanceof Collector) {
+                consumerBottles += element.getBottlesAmount();
+            } else if (element instanceof Collector) {
                 collectors++;
+                collectorBottles += element.getBottlesAmount();
             }
             // dodawanie butli z plecaka
-            totalBottles += agent.bottles.size();
+            totalBottles += element.getBottlesAmount();
         }
 
         int bottleMachines = map.getBottleMachines().size();
@@ -342,7 +387,9 @@ public class SimulationGame extends ApplicationAdapter {
         // aktualizacja etykiet
         consumersLabel.setText("Konsumenci: " + consumers);
         collectorsLabel.setText("Kolektorzy: " + collectors);
-        bottlesLabel.setText("Butelki: " + totalBottles);
+        wholeBottlesLabel.setText("Wszystkie butelki w obiegu: " + totalBottles);
+        collectorBottlesLabel.setText("Wszystkie butelki collectorow: " + collectorBottles);
+        consumerBottlesLabel.setText("Wszystkie butelki consumerow: " + consumerBottles);
         bottleMachinesLabel.setText("Butelkomaty: " + bottleMachines);
         trashBinsLabel.setText("Smietniky: " + trashBins);
     }

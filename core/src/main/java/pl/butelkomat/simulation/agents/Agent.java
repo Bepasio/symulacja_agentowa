@@ -63,5 +63,9 @@ public abstract class Agent implements MapElement {
         }
     }
 
+    public int getBottlesAmount() {
+        return bottles.size();
+    }
+
     public abstract void step(boolean movePhase, WorldMap map);
 }

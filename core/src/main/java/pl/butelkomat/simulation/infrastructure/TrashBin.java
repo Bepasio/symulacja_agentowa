@@ -29,7 +29,7 @@ public class TrashBin implements MapElement {
         return true;
     }
 
-    public int getCurrentFillLevel(){
+    public int getBottlesAmount() {
         return bottles.size();
     }
 

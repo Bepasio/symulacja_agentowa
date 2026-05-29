@@ -6,7 +6,7 @@ public class TimeManager {
     private float timeAccumulator = 0.0f;
     private long totalTicks = 0;
 
-    //1 tick - 1 minuta - zostawiam zmienna jakbysmy chcieli to zmieniac
+    //1 tick - 1 minuta; mysle ze 2tick/1minute to przesada (minuta po 120 tickach, w ciagu minuty agent moze przejsc 2/3 mapy)
     private static final int ticksPerMinute = 1;
     private final String[] daysOfWeek = {"Poniedzialek", "Wtorek", "Sroda", "Czwartek", "Piatek", "Sobota", "Niedziela"};
 
@@ -32,7 +32,7 @@ public class TimeManager {
     }
 
     public void setSpeedMultiplier(float multiplier) {
-        if (multiplier >= 0) this.speedMultiplier = multiplier;
+        if (multiplier > 0) this.speedMultiplier = multiplier;
     }
 
     public float getSpeedMultiplier() { return speedMultiplier; }

@@ -217,10 +217,9 @@ public class SimulationGame extends ApplicationAdapter {
         pauseButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-                // Przełączamy stan w silniku
+                //zmienia stan w simulationEngine
                 engine.togglePause();
-
-                // Zmieniamy tekst na przycisku w zależności od stanu
+                
                 if (engine.isPaused()) {
                     pauseButton.setText("Wznow");
                     LoggerService.getInstance().log("--- SYMULACJA WSTRZYMANA ---");

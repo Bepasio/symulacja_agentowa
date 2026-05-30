@@ -94,7 +94,7 @@ public class Consumer extends Agent {
                                 interacted = true;
                                 break;
                             } else if (element instanceof BottleMachine machine) {
-                                int accepted = machine.processDeposit(this.bottles);
+                                int accepted = machine.processDeposit(this);
                                 LoggerService.getInstance().log("Consumer" + id + " oddal " + accepted + " butelek do butelkomatu. W plecaku zostalo: " + bottles.size());
                                 interacted = true;
                                 break;

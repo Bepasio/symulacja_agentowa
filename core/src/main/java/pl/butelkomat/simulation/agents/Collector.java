@@ -82,7 +82,7 @@ public class Collector extends Agent {
                                 visitedTargets.add(currentTarget);
                                 break;
                             } else if (element instanceof BottleMachine machine && isFull) {
-                                int accepted = machine.processDeposit(this.bottles);
+                                int accepted = machine.processDeposit(this);
                                 LoggerService.getInstance().log("Collector-" + id + " oddal " + accepted + " butelek do butelkomatu.");
 
                                 if (!bottles.isEmpty()) {

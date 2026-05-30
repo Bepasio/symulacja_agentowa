@@ -49,7 +49,7 @@ public class SimulationGame extends ApplicationAdapter {
     private Slider speedSlider;
     private Label speedLabel;
 
-    // etykiety statów
+    // Etykiety statystyk
     private Label consumersLabel;
     private Label collectorsLabel;
     private Label wholeBottlesLabel;
@@ -60,7 +60,7 @@ public class SimulationGame extends ApplicationAdapter {
     private Label bottleMachinesLabel;
     private Label trashBinsLabel;
 
-    // logi
+    // Logi
     private TextArea logsTextArea;
     private ScrollPane logsScrollPane;
 
@@ -270,21 +270,21 @@ public class SimulationGame extends ApplicationAdapter {
 
         stage.addActor(table);
 
-        // PANEL LOGÓW
+        // ===== PANEL LOGÓW =====
         Table logsTable = new Table();
         logsTable.setFillParent(true);
         logsTable.top().right().pad(10);
 
-        // etykieta "Logi"
+        // Etykieta "Logi"
         Label logsTitle = new Label("Logi symulacji:", skin);
         logsTable.add(logsTitle).padBottom(5).row();
 
-        // pole tekstowe dla logów
+        // Pole tekstowe dla logów
         logsTextArea = new TextArea("", skin);
         logsTextArea.setDisabled(true);
         logsTextArea.setSize(350, 150);
 
-        // scroll dla tekstu
+        // ScrollPane dla tekstu
         logsScrollPane = new ScrollPane(logsTextArea, skin);
         logsScrollPane.setSize(350, 150);
         logsTable.add(logsScrollPane).width(350).height(150).row();
@@ -334,7 +334,7 @@ public class SimulationGame extends ApplicationAdapter {
         }
 
         for (Agent a : map.getAgents()) {
-            // dobieranie koloru agenta
+            // Sprawdzamy, kim jest agent, żeby dobrać kolor
             Texture tex;
 
             if (a instanceof Consumer) {
@@ -412,13 +412,13 @@ public class SimulationGame extends ApplicationAdapter {
     }
 
     /**
-     * aktualizuje pole logów
+     * Aktualizuje pole logów
      */
     private void updateLogs() {
         LoggerService logger = LoggerService.getInstance();
         ArrayList<String> allLogs = logger.getLogs();
 
-        // weź ostatnie 20 logów
+        // Weź ostatnie 20 logów
         int startIdx = Math.max(0, allLogs.size() - 20);
         StringBuilder logsText = new StringBuilder();
 
@@ -427,7 +427,7 @@ public class SimulationGame extends ApplicationAdapter {
         }
 
         logsTextArea.setText(logsText.toString());
-        // scroll do dołu
+        // Scroll do dołu
         logsScrollPane.setScrollPercentY(1.0f);
     }
 

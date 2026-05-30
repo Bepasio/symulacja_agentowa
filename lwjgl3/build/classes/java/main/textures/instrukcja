@@ -1,10 +1,10 @@
 w tym folderze trzeba umieścić sprite'y do renderowania
 czyli:
-    water.png
-    grass.png
-    path.png
-    wall.png
-    bottle.png
-    trash.png
+    water.png === done
+    grass.png === done
+    path.png === done
+    wall.png === done
+    bottle.png === done
+    trash.png === done
 
 KAŻDY Z NICH MA MIEĆ PRZYNAJMNIEJ TE 12PXx12PX, ALE OPTYMALIZUJMY POD 32X32

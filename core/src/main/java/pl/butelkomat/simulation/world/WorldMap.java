@@ -52,10 +52,10 @@ public class WorldMap {
 
     public void addElement(MapElement element) {
         Position pos = element.getPosition();
-        if(pos.getX() < 0 || pos.getX() >= this.width || pos.getY() < 0 || pos.getY() >= this.height){
-            LoggerService.getInstance().logError("Obiekt poza mapa");
-            return;
-        }
+        int posX = pos.getX();
+        int posY = pos.getY();
+        if(!isWalkable(posX, posY)) return;
+
         elements.add(element);
     }
 
@@ -151,17 +151,17 @@ public class WorldMap {
         return elements;
     }
 
-//    public boolean isWalkable(int x, int y) {
-//        // Zabezpieczenie przed wyjściem poza mapę
-//        if (x < 0 || x >= width || y < 0 || y >= height) return false;
-//
-//        // Blokada wejścia do wody i w ściany
-//        if (terrainGrid[y][x] == TileType.WATER || terrainGrid[y][x] == TileType.OBSTACLE) {
-//            return false;
-//        }
-//
-//        return true;
-//    }
+    public boolean isWalkable(int x, int y) {
+        // Zabezpieczenie przed wyjściem poza mapę
+        if (x < 0 || x >= width || y < 0 || y >= height) return false;
+
+        // Blokada wejścia do wody i w ściany
+        if (terrainGrid[y][x] == TileType.WATER || terrainGrid[y][x] == TileType.OBSTACLE) {
+            return false;
+        }
+
+        return true;
+    }
 
     public int getWidth() { return width; }
     public int getHeight() { return height; }

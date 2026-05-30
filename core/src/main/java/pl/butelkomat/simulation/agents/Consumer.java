@@ -63,8 +63,12 @@ public class Consumer extends Agent {
                     }
                 }
                 else{
-                    int randomX = (int) (Math.random() * 90) + 1;
-                    int randomY = (int) (Math.random() * 26) + 1;
+                    int randomX;
+                    int randomY;
+                    do {
+                        randomX = (int) (Math.random() * 90);
+                        randomY = (int) (Math.random() * 26);
+                    }while(!map.isWalkable(randomX, randomY));
                     currentTarget = new Position(randomX, randomY);
                 }
             }

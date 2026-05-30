@@ -32,8 +32,12 @@ public class Collector extends Agent {
 
                     if (currentTarget == null) {
                         visitedTargets.clear();
-                        int randomX = (int) (Math.random() * 90);
-                        int randomY = (int) (Math.random() * 26);
+                        int randomX;
+                        int randomY;
+                        do {
+                            randomX = (int) (Math.random() * 90);
+                            randomY = (int) (Math.random() * 26);
+                        }while(!map.isWalkable(randomX, randomY));
                         currentTarget = new Position(randomX, randomY);
                     }
                 } else {

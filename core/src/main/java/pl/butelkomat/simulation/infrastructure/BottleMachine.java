@@ -1,6 +1,9 @@
 package pl.butelkomat.simulation.infrastructure;
 
+import pl.butelkomat.simulation.agents.Agent;
+import pl.butelkomat.simulation.agents.Consumer;
 import pl.butelkomat.simulation.item.Bottle;
+import pl.butelkomat.simulation.utils.LoggerService;
 import pl.butelkomat.simulation.world.MapElement;
 import pl.butelkomat.simulation.world.Position;
 
@@ -12,6 +15,7 @@ public class BottleMachine implements MapElement {
     private final ArrayList<Bottle> bottles;
     private int paperStock;
     private Position position;
+    private final double bottlePrice = 0.50;
 
     public boolean canCollectBottle() {
         return bottles.size() < capacity && paperStock > 0;
@@ -33,13 +37,13 @@ public class BottleMachine implements MapElement {
         return true;
     }
 
-    public int processDeposit(ArrayList<Bottle> agentBottles) {
+    public int processDeposit(Agent agent) {
         if (!canCollectBottle()) {
             return 0;
         }
 
         int acceptedBottles = 0;
-        Iterator<Bottle> iterator = agentBottles.iterator();
+        Iterator<Bottle> iterator = agent.bottles.iterator();
 
         while (iterator.hasNext()) {
             if (bottles.size() >= capacity) {
@@ -56,6 +60,13 @@ public class BottleMachine implements MapElement {
 
         if (acceptedBottles > 0) {
             paperStock--;
+            double payout = acceptedBottles * bottlePrice;
+            agent.addMoney(payout);
+            if(agent instanceof Consumer) {
+                LoggerService.getInstance().log("Consumer-" + agent.getID() + " zarobił " + payout + " zł");
+            }else{
+                LoggerService.getInstance().log("Collector-" + agent.getID() + " zarobił " + payout + " zł");
+            }
         }
 
         return acceptedBottles;

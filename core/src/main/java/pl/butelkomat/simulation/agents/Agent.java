@@ -18,6 +18,7 @@ public abstract class Agent implements MapElement {
     protected Position currentTarget;
     protected ArrayList<Position> visitedTargets;
     protected int id;
+    protected double balance;
 
     public Agent(Position startPosition, int backpackCapacity, int id) {
         this.position = startPosition;
@@ -26,6 +27,7 @@ public abstract class Agent implements MapElement {
         this.currentTarget = null;
         this.visitedTargets = new ArrayList<>();
         this.id = id;
+        this.balance = 0.0;
     }
 
     public Position getPosition() {
@@ -63,9 +65,19 @@ public abstract class Agent implements MapElement {
         }
     }
 
+    public double getBalance() {
+        return balance;
+    }
+
+    public void addMoney(double amount) {
+        this.balance += amount;
+    }
+
     public int getBottlesAmount() {
         return bottles.size();
     }
+
+    public int getID(){return id;}
 
     public abstract void step(boolean movePhase, WorldMap map);
 }

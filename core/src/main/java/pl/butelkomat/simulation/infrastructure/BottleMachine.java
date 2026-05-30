@@ -69,7 +69,7 @@ public class BottleMachine implements MapElement {
         bottles.clear();
     }
 
-    public int getCurrentFillLevel() {
+    public int getBottlesAmount() {
         return bottles.size();
     }
 

@@ -18,10 +18,7 @@ public class WorldMap {
     private final TileType[][] terrainGrid;
 
     private final ArrayList<MapElement> elements;
-//    private final ArrayList<BottleMachine> bottleMachines;
-//    private final ArrayList<TrashBin> trashBins;
     private final ArrayList<Zone> zones;
-//    private final ArrayList<Agent> agents; // DO TEGO BĘDZIE MIEĆ DOSTĘP SILNIK
 
     public WorldMap(int width, int height) {
         this.width = width;
@@ -29,9 +26,6 @@ public class WorldMap {
         this.terrainGrid = new TileType[height][width];
         this.zones = new ArrayList<>();
         this.elements = new ArrayList<>();
-//        this.bottleMachines = new ArrayList<>();
-//        this.trashBins = new ArrayList<>();
-//        this.agents = new ArrayList<>();
     }
 
     public void loadBackgroundFromAscii(String path) {
@@ -58,7 +52,7 @@ public class WorldMap {
 
     public void addElement(MapElement element) {
         Position pos = element.getPosition();
-        if(pos.getX() < 0 || pos.getX() > this.width || pos.getY() < 0 || pos.getY() > this.height){
+        if(pos.getX() < 0 || pos.getX() >= this.width || pos.getY() < 0 || pos.getY() >= this.height){
             LoggerService.getInstance().logError("Obiekt poza mapa");
             return;
         }
@@ -156,6 +150,18 @@ public class WorldMap {
     public ArrayList<MapElement> getElements() {
         return elements;
     }
+
+//    public boolean isWalkable(int x, int y) {
+//        // Zabezpieczenie przed wyjściem poza mapę
+//        if (x < 0 || x >= width || y < 0 || y >= height) return false;
+//
+//        // Blokada wejścia do wody i w ściany
+//        if (terrainGrid[y][x] == TileType.WATER || terrainGrid[y][x] == TileType.OBSTACLE) {
+//            return false;
+//        }
+//
+//        return true;
+//    }
 
     public int getWidth() { return width; }
     public int getHeight() { return height; }

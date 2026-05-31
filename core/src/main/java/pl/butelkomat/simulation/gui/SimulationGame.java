@@ -165,6 +165,7 @@ public class SimulationGame extends ApplicationAdapter {
         spriteBatch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();  // zostawcie to do UI jakby się z...epsuło
 
+        /* TUTAJ BYŁO SZPONCENIE TEKSTUR W RAMIE (SPRITE'Y BEZUŻYTECZNE)
         // ładowanie tekstur PNG dla terenu
         textureWater = createPatternTexture(new Color(0.2f, 0.5f, 0.8f, 1.0f), new Color(0.1f, 0.3f, 0.6f, 1.0f));
         textureGrass = createPatternTexture(new Color(0.2f, 0.7f, 0.2f, 1.0f), new Color(0.1f, 0.5f, 0.1f, 1.0f));
@@ -179,6 +180,17 @@ public class SimulationGame extends ApplicationAdapter {
         textureBottle = createTextureFromColor(new Color(1.0f, 0.9f, 0.1f, 1.0f));
         textureConsumer = createTextureFromColor(new Color(0.8f, 0.2f, 0.2f, 1.0f)); // Czerwony consumer
         textureCollector = createTextureFromColor(new Color(0.2f, 0.2f, 0.8f, 1.0f)); // Niebieski collector
+        */
+
+        // Wczytywanie prawdziwych plików PNG z folderu assets/textures/
+        textureWater = new Texture(Gdx.files.internal("textures/water.png"));
+        textureGrass = new Texture(Gdx.files.internal("textures/grass.png"));
+        texturePath = new Texture(Gdx.files.internal("textures/path.png"));
+        textureWall = new Texture(Gdx.files.internal("textures/wall.png"));
+        textureTrash = new Texture(Gdx.files.internal("textures/trash.png"));
+        textureBottle = new Texture(Gdx.files.internal("textures/bottle.png"));
+        textureConsumer = new Texture(Gdx.files.internal("textures/consumer.png"));
+        textureCollector = new Texture(Gdx.files.internal("textures/collector.png"));
 
         // init UI z Scene2D
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));

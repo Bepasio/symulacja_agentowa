@@ -42,7 +42,7 @@ public class SimulationGame extends ApplicationAdapter {
     private ShapeRenderer shapeRenderer;
     private SpriteBatch spriteBatch;
     private OrthographicCamera camera;
-    private final int TILE_SIZE = 12;
+    private final int TILE_SIZE = 18;
 
     private Stage stage;
     private Skin skin;
@@ -125,7 +125,7 @@ public class SimulationGame extends ApplicationAdapter {
     public void create() {
         LoggerService.getInstance().log("=== Starowanie symulacji ===");
 
-        WorldMap worldMap = new WorldMap(90, 26);
+        WorldMap worldMap = new WorldMap(135, 39);
 
         // 1. Ładowanie tła z ASCII
         worldMap.loadBackgroundFromAscii("cfg/wroclaw_map.txt");

@@ -37,6 +37,10 @@ public class TrashBin implements MapElement {
         return capacity;
     }
 
+    public void emptying(){
+        bottles.clear();
+    }
+
     public Bottle takeBottle(){
         if(!bottles.isEmpty()){
             return bottles.pop();

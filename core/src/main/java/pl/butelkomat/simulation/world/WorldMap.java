@@ -290,6 +290,29 @@ public class WorldMap {
         if(!finalPath.isEmpty()) return finalPath;
         return null;
     }
+    public int getMaxBottleAmount(){
+        int sum = 0;
+        for (MapElement element : elements) {
+            sum += element.getCapacity();
+        }
+        return sum;
+    }
+
+    public int everyBottleMachineCapacity(){
+        int sum = 0;
+        for (MapElement element : elements) {
+            sum += element.getCapacity();
+        }
+        return sum;
+    }
+
+    public int everyTrashBinCapacity(){
+        int sum = 0;
+        for (MapElement element : elements) {
+            sum += element.getCapacity();
+        }
+        return sum;
+    }
 
     public int getWidth() { return width; }
     public int getHeight() { return height; }

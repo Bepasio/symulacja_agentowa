@@ -10,6 +10,7 @@ import pl.butelkomat.simulation.world.ElementType;
 
 import java.lang.classfile.TypeAnnotation;
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class Agent implements MapElement {
     protected Position position;
@@ -19,6 +20,8 @@ public abstract class Agent implements MapElement {
     protected ArrayList<Position> visitedTargets;
     protected int id;
     protected double balance;
+    protected List<Position> currentPath = null;
+    protected Position pathTarget = null;
 
     public Agent(Position startPosition, int backpackCapacity, int id) {
         this.position = startPosition;
@@ -48,20 +51,29 @@ public abstract class Agent implements MapElement {
         return null;
     }
 
-    public void moveTowards(Position target){
+    public void moveTowards(Position target, WorldMap map){
         if (target == null || position.equals(target)) return;
 
-        if (position.getX() < target.getX()) {
-            position.setX(position.getX() + 1);
+        if(pathTarget == null || !pathTarget.equals(target)){
+            currentPath = null;
+            pathTarget = target;
+        };
+
+        if(currentPath == null){
+            currentPath = map.pathFinder(position, target);
         }
-        else if (position.getX() > target.getX()) {
-            position.setX(position.getX() - 1);
+
+        if(currentPath == null){
+            visitedTargets.add(target);
+            currentTarget = null;
+            pathTarget = null;
+            return;
         }
-        else if (position.getY() < target.getY()) {
-            position.setY(position.getY() + 1);
-        }
-        else if (position.getY() > target.getY()) {
-            position.setY(position.getY() - 1);
+
+        if(!currentPath.isEmpty()){
+            Position nextStep = currentPath.remove(0);
+            position.setX(nextStep.getX());
+            position.setY(nextStep.getY());
         }
     }
 

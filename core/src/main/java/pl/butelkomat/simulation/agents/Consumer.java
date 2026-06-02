@@ -43,27 +43,47 @@ public class Consumer extends Agent {
                 }
             }
 
-            if (currentTarget == null) {
-                if(!bottles.isEmpty()) {
-                    Position nearestTrashBin = map.nearestTrashBin(position, visitedTargets);
-                    Position nearestBottleMachine = null;
-                    if (hasRefundableBottle()) {
-                        nearestBottleMachine = map.nearestBottleMachine(position, visitedTargets);
-                    }
+//            if (currentTarget == null) {
+//                if(!bottles.isEmpty()) {
+//                    Position nearestTrashBin = map.nearestTrashBin(position, visitedTargets);
+//                    Position nearestBottleMachine = null;
+//                    if (hasRefundableBottle()) {
+//                        nearestBottleMachine = map.nearestBottleMachine(position, visitedTargets);
+//                    }
+//
+//                    if (nearestTrashBin == null && nearestBottleMachine == null) {
+//                        System.out.println("Consumer" + id + ": wszytko pelne/odrzucone. Nie udalo sie wyznaczyc celu");
+//                        visitedTargets.clear();
+////                        bottles.clear();
+//                    } else if (nearestTrashBin == null) currentTarget = nearestBottleMachine;
+//                    else if (nearestBottleMachine == null) currentTarget = nearestTrashBin;
+//                    else if (map.calculateDistance(position, nearestBottleMachine) < map.calculateDistance(position, nearestTrashBin)) {
+//                        currentTarget = nearestBottleMachine;
+//                    } else {
+//                        currentTarget = nearestTrashBin;
+//                    }
+//                }
+//                else{
+//                    int randomX;
+//                    int randomY;
+//                    do {
+//                        randomX = (int) (Math.random() * 90);
+//                        randomY = (int) (Math.random() * 26);
+//                    }while(!map.isWalkable(randomX, randomY));
+//                    currentTarget = new Position(randomX, randomY);
+//                }
+//            }
 
-                    if (nearestTrashBin == null && nearestBottleMachine == null) {
-                        System.out.println("Consumer" + id + ": wszytko pelne/odrzucone. Nie udalo sie wyznaczyc celu");
+            if(currentTarget == null){
+                if(!bottles.isEmpty()){
+                    Position target = map.nearestInteractable(position, visitedTargets);
+                    if(target == null){
+                        LoggerService.getInstance().log("Consumer" + id + ": wszytko pelne/odrzucone. Nie udalo sie wyznaczyc celu");
                         visitedTargets.clear();
-//                        bottles.clear();
-                    } else if (nearestTrashBin == null) currentTarget = nearestBottleMachine;
-                    else if (nearestBottleMachine == null) currentTarget = nearestTrashBin;
-                    else if (map.calculateDistance(position, nearestBottleMachine) < map.calculateDistance(position, nearestTrashBin)) {
-                        currentTarget = nearestBottleMachine;
-                    } else {
-                        currentTarget = nearestTrashBin;
+                    }else{
+                        currentTarget = target;
                     }
-                }
-                else{
+                }else{
                     int randomX;
                     int randomY;
                     do {
@@ -75,7 +95,7 @@ public class Consumer extends Agent {
             }
 
             if (currentTarget != null) {
-                moveTowards(currentTarget);
+                moveTowards(currentTarget, map);
 
                 boolean interacted = false;
                 if (position.equals(currentTarget)) {

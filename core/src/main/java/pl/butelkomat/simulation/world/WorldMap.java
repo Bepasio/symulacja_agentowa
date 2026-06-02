@@ -10,6 +10,9 @@ import pl.butelkomat.simulation.utils.LoggerService;
 
 import java.io.BufferedReader;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.PriorityQueue;
 
 public class WorldMap {
     public enum TileType { PATH, WATER, GRASS, OBSTACLE }
@@ -193,6 +196,99 @@ public class WorldMap {
         }
 
         return true;
+    }
+
+    private class Node implements Comparable<Node> {
+        Position pos;
+        Node parent;
+        int gCost;
+        int hCost;
+
+        Node(Position pos, Node parent, int gCost, int hCost){
+            this.pos = pos;
+            this.parent = parent;
+            this.gCost = gCost;
+            this.hCost = hCost;
+        }
+
+        public int getFCost() {
+            return gCost + hCost;
+        }
+
+        public int compareTo(Node o) {
+            int compare = Integer.compare(this.getFCost(), o.getFCost());
+            if (compare == 0){
+                compare = Integer.compare(this.hCost, o.hCost);
+            }
+            return compare;
+        }
+    }
+
+    public List<Position> pathFinder(Position start, Position target){
+        PriorityQueue<Node> openSet = new PriorityQueue<>();
+        ArrayList<Position> closedSet = new ArrayList<>();
+
+        openSet.add(new Node(start, null, 0, calculateDistance(start, target)));
+
+        int[] dx = {1, -1, 0, 0, 1, 1, -1, -1};
+        int[] dy = {0, 0, 1, -1, 1, -1, 1, -1};
+
+        Node targetNode = null;
+
+        while (!openSet.isEmpty()){
+            Node currentNode =  openSet.poll();
+            closedSet.add(currentNode.pos);
+
+            if(currentNode.pos.equals(target)){
+                targetNode = currentNode;
+                break;
+            }
+
+            for(int i = 0; i < 8; i++){
+                int nx = currentNode.pos.getX() + dx[i];
+                int ny = currentNode.pos.getY() + dy[i];
+                Position neighborPos = new Position(nx, ny);
+
+                if(!isWalkable(nx, ny) && !neighborPos.equals(target)) continue;
+                if(closedSet.contains(neighborPos)) continue;
+
+                int moveCostToNeighbor = currentNode.gCost + 1;
+
+                boolean inOpenSet = false;
+                for(Node node : openSet){
+                    if(node.pos.equals(neighborPos)){
+                        inOpenSet = true;
+                        if(moveCostToNeighbor < node.gCost){
+                            node.gCost = moveCostToNeighbor;
+                            node.parent = currentNode;
+                        }
+                        break;
+                    }
+                }
+                if(!inOpenSet){
+                    int hCost = calculateDistance(neighborPos, target);
+                    openSet.add(new Node(neighborPos, currentNode, moveCostToNeighbor, hCost));
+                }
+            }
+        }
+        if(targetNode == null) return null;
+
+        List<Position> finalPath = new ArrayList<>();
+        Node currentNode = targetNode;
+
+        while(currentNode != null){
+            finalPath.add(currentNode.pos);
+            currentNode = currentNode.parent;
+        }
+
+        Collections.reverse(finalPath);
+
+        if(!finalPath.isEmpty()){
+            finalPath.remove(0);
+        };
+
+        if(!finalPath.isEmpty()) return finalPath;
+        return null;
     }
 
     public int getWidth() { return width; }

@@ -8,7 +8,7 @@ public class TimeManager {
 
     //1 tick - 1 minuta; mysle ze 2tick/1minute to przesada (minuta po 120 tickach, w ciagu minuty agent moze przejsc 2/3 mapy)
     private static final int ticksPerMinute = 1;
-    private final String[] daysOfWeek = {"Poniedzialek", "Wtorek", "Sroda", "Czwartek", "Piatek", "Sobota", "Niedziela"};
+    private final String[] daysOfWeek = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 
     public int update(float deltaTime) {
         timeAccumulator += deltaTime;
@@ -49,6 +49,10 @@ public class TimeManager {
     public String getDayOfWeek() {
         int totalDays = (int) (totalTicks / (ticksPerMinute * 60 * 24));
         return daysOfWeek[totalDays % 7];
+    }
+
+    public int getDayOfWeekIndex() {
+        return (int) ((totalTicks / (ticksPerMinute * 60 * 24)))%7;
     }
 
     public String getFormattedTime() {

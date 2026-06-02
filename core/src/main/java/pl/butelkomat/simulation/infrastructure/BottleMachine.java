@@ -13,6 +13,7 @@ import java.util.Iterator;
 public class BottleMachine implements MapElement {
     private final int capacity;
     private final ArrayList<Bottle> bottles;
+    private final int maxPaperStock;
     private int paperStock;
     private Position position;
     private final double bottlePrice = 0.50;
@@ -24,6 +25,7 @@ public class BottleMachine implements MapElement {
     public BottleMachine(int capacity, int paperStock, Position position) {
         this.capacity = capacity;
         this.bottles = new ArrayList<>();
+        this.maxPaperStock = paperStock;
         this.paperStock = paperStock;
         this.position = position;
     }
@@ -72,8 +74,8 @@ public class BottleMachine implements MapElement {
         return acceptedBottles;
     }
 
-    public void paperRefill(int refillAmount) {
-        paperStock = refillAmount;
+    public void paperRefill() {
+        paperStock = maxPaperStock ;
     }
 
     public void emptying() {

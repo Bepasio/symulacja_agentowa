@@ -10,7 +10,7 @@ import pl.butelkomat.simulation.world.Position;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class BottleMachine implements MapElement {
+public class BottleMachine implements MapElement, Interactable {
     private final int capacity;
     private final ArrayList<Bottle> bottles;
     private final int maxPaperStock;
@@ -84,6 +84,10 @@ public class BottleMachine implements MapElement {
 
     public int getBottlesAmount() {
         return bottles.size();
+    }
+
+    public boolean isFull() {
+        return bottles.size() == capacity;
     }
 
     public int getCapacity() {

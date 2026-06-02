@@ -1,6 +1,7 @@
 package pl.butelkomat.simulation.agents;
 
 import pl.butelkomat.simulation.infrastructure.BottleMachine;
+import pl.butelkomat.simulation.infrastructure.Interactable;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
 import pl.butelkomat.simulation.item.Bottle;
 import pl.butelkomat.simulation.utils.LoggerService;
@@ -57,48 +58,45 @@ public class Collector extends Agent {
                         return;
                     }
 
-                    for (MapElement element : map.getElements()) {
-                        if (element.getPosition().equals(position)) {
+                    Interactable interactable = map.getInteractableAt(position);
+                    if (interactable != null) {
+                        if (interactable instanceof TrashBin bin) {
+                            int collectedCount = 0;
+                            Stack<Bottle> rejectedBottles = new Stack<>();
 
-                            if (element instanceof TrashBin bin) {
-                                int collectedCount = 0;
-                                Stack<Bottle> rejectedBottles = new Stack<>();
-
-                                while (bottles.size() < backpackCapacity) {
-                                    Bottle bottle = bin.takeBottle();
-                                    if (bottle != null) {
-                                        if (bottle.isRefundable()) {
-                                            bottles.add(bottle);
-                                            collectedCount++;
-                                        } else {
-                                            rejectedBottles.push(bottle);
-                                        }
+                            while (bottles.size() < backpackCapacity) {
+                                Bottle bottle = bin.takeBottle();
+                                if (bottle != null) {
+                                    if (bottle.isRefundable()) {
+                                        bottles.add(bottle);
+                                        collectedCount++;
                                     } else {
-                                        break;
+                                        rejectedBottles.push(bottle);
                                     }
-                                }
-
-                                while (!rejectedBottles.isEmpty()) {
-                                    bin.addBottle(rejectedBottles.pop());
-                                }
-
-                                LoggerService.getInstance().log("Collector-" + id + " wyciagnal " + collectedCount + " butelek KAUCYJNYCH z kosza. W plecaku:" + bottles.size() + "/20");
-                                visitedTargets.add(currentTarget);
-                                break;
-                            } else if (element instanceof BottleMachine machine && isFull) {
-                                int accepted = machine.processDeposit(this);
-                                LoggerService.getInstance().log("Collector-" + id + " oddal " + accepted + " butelek do butelkomatu.");
-
-                                if (!bottles.isEmpty()) {
-                                    LoggerService.getInstance().log("Collector-" + id + ": nie oddano wszystkiego, pozostalo " + bottles.size() + "/20 butelek");
-                                    visitedTargets.add(currentTarget);
                                 } else {
-                                    visitedTargets.clear();
+                                    break;
                                 }
-                                break;
+                            }
+
+                            while (!rejectedBottles.isEmpty()) {
+                                bin.addBottle(rejectedBottles.pop());
+                            }
+
+                            LoggerService.getInstance().log("Collector-" + id + " wyciagnal " + collectedCount + " butelek KAUCYJNYCH z kosza. W plecaku:" + bottles.size() + "/20");
+                            visitedTargets.add(currentTarget);
+                        } else if (interactable instanceof BottleMachine machine && isFull) {
+                            int accepted = machine.processDeposit(this);
+                            LoggerService.getInstance().log("Collector-" + id + " oddal " + accepted + " butelek do butelkomatu.");
+
+                            if (!bottles.isEmpty()) {
+                                LoggerService.getInstance().log("Collector-" + id + ": nie oddano wszystkiego, pozostalo " + bottles.size() + "/20 butelek");
+                                visitedTargets.add(currentTarget);
+                            } else {
+                                visitedTargets.clear();
                             }
                         }
                     }
+
                     currentTarget = null;
                 }
             }

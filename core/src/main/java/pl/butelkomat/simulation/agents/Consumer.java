@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.concurrent.*;
 
 import pl.butelkomat.simulation.infrastructure.BottleMachine;
+import pl.butelkomat.simulation.infrastructure.Interactable;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
 import pl.butelkomat.simulation.item.Bottle;
 import pl.butelkomat.simulation.utils.LoggerService;
@@ -78,33 +79,29 @@ public class Consumer extends Agent {
 
                 boolean interacted = false;
                 if (position.equals(currentTarget)) {
-                    for (MapElement element : map.getElements()) {
-                        if (element.getPosition().equals(position)) {
+                    Interactable targetElement = map.getInteractableAt(position);
 
-                            if (element instanceof TrashBin bin) {
-                                int thrownAway = 0;
+                    if(targetElement instanceof TrashBin bin){
+                        int thrownAway = 0;
 
-                                Iterator<Bottle> iterator = bottles.iterator();
-                                while (iterator.hasNext()) {
-                                    Bottle b = iterator.next();
-                                    if (bin.addBottle(b)) {
-                                        iterator.remove();
-                                        thrownAway++;
-                                    } else {
-                                        break;
-                                    }
-                                }
-                                LoggerService.getInstance().log("Consumer" + id + " wyrzucil " + thrownAway + " butelek do kosza. W plecaku zostalo: " + bottles.size());
-                                interacted = true;
-                                break;
-                            } else if (element instanceof BottleMachine machine) {
-                                int accepted = machine.processDeposit(this);
-                                LoggerService.getInstance().log("Consumer" + id + " oddal " + accepted + " butelek do butelkomatu. W plecaku zostalo: " + bottles.size());
-                                interacted = true;
+                        Iterator<Bottle> iterator = bottles.iterator();
+                        while(iterator.hasNext()){
+                            Bottle b = iterator.next();
+                            if (bin.addBottle(b)) {
+                                iterator.remove();
+                                thrownAway++;
+                            } else {
                                 break;
                             }
                         }
+                        LoggerService.getInstance().log("Consumer" + id + " wyrzucil " + thrownAway + " butelek do kosza. W plecaku zostalo: " + bottles.size());
+                        interacted = true;
+                    }else if(targetElement instanceof BottleMachine machine){
+                        int accepted = machine.processDeposit(this);
+                        LoggerService.getInstance().log("Consumer" + id + " oddal " + accepted + " butelek do butelkomatu. W plecaku zostalo: " + bottles.size());
+                        interacted = true;
                     }
+
                         if (interacted && !bottles.isEmpty()) {
                             LoggerService.getInstance().log("Consumer" + id + " Obiekt pelny lub odrzucil butelki! Dodaje go do czarnej listy.");
                             visitedTargets.add(currentTarget);

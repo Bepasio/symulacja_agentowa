@@ -1,1 +1,2 @@
-PlacGrunwaldzki,2,6,2,5,10,2.5
+PlacGrunwaldzki,2,6,2,5,2.5
+WyspaSlodowa,9,17,6,8,10.0

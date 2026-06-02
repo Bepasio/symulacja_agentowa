@@ -81,6 +81,10 @@ public abstract class Agent implements MapElement {
         return balance;
     }
 
+    public int getCapacity(){
+        return backpackCapacity;
+    }
+
     public void addMoney(double amount) {
         this.balance += amount;
     }

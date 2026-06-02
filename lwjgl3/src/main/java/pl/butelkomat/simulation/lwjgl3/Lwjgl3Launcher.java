@@ -20,7 +20,7 @@ public class Lwjgl3Launcher {
         configuration.setTitle("Symulacja Agentowa - Wrocław");
         configuration.useVsync(true);
         configuration.setForegroundFPS(60);
-        configuration.setWindowedMode(1600, 900);
+        configuration.setWindowedMode(1600, 1200);
         configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
 
         return configuration;

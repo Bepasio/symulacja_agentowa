@@ -418,9 +418,9 @@ public class SimulationGame extends ApplicationAdapter {
         collectorBottlesLabel.setText("Wszystkie butelki collectorow: " + collectorBottles);
         consumerBottlesLabel.setText("Wszystkie butelki consumerow: " + consumerBottles);
 
-        wholeBottlesLabel.setText("Wszystkie butelki w obiegu: " + totalBottles);
-        bottleMachinesBottleLabel.setText("Wszystkie butelki w butelkomatach: " + machineBottles);
-        trashBinsBottleLabel.setText("Wszystkie butelki w smietnikach: " + trashBinBottles);
+        wholeBottlesLabel.setText("Wszystkie butelki w obiegu: " + totalBottles + "/" + map.getMaxBottleAmount());
+        bottleMachinesBottleLabel.setText("Wszystkie butelki w butelkomatach: " + machineBottles + "/" + map.everyBottleMachineCapacity());
+        trashBinsBottleLabel.setText("Wszystkie butelki w smietnikach: " + trashBinBottles + "/" + map.everyTrashBinCapacity());
     }
 
     /**

@@ -12,6 +12,7 @@ import pl.butelkomat.simulation.utils.LoggerService;
 import pl.butelkomat.simulation.world.MapElement;
 import pl.butelkomat.simulation.world.Position;
 import pl.butelkomat.simulation.world.WorldMap;
+import pl.butelkomat.simulation.world.Zone;
 
 public class Consumer extends Agent {
     private static int consumerIdCounter = 1;
@@ -31,7 +32,19 @@ public class Consumer extends Agent {
 
         if (movePhase) {
             if (bottles.size() < backpackCapacity) {
-                if (Math.random() < 0.05) {
+                double multiplier = 1.0;
+
+                for(Zone zone : map.getZones()) {
+                    if(zone.isInZone(position)) {
+                        multiplier = zone.getMultiplier();
+                        break;
+                    }
+                }
+
+                double baseChance = 0.05; //domyslna szansa na wygenerowanie butelki
+                double finalChance = multiplier * baseChance; // szansa na wygenerowanie butelki po uwzglednieniu mnoznika strefy
+
+                if (Math.random() < finalChance) {
                     if (bottles.isEmpty()) {
                         visitedTargets.clear();
                         currentTarget = null;
@@ -42,37 +55,6 @@ public class Consumer extends Agent {
                     LoggerService.getInstance().log("Consumer" + id + " wygenerowal butelke isRefundable=" + isRefundable);
                 }
             }
-
-//            if (currentTarget == null) {
-//                if(!bottles.isEmpty()) {
-//                    Position nearestTrashBin = map.nearestTrashBin(position, visitedTargets);
-//                    Position nearestBottleMachine = null;
-//                    if (hasRefundableBottle()) {
-//                        nearestBottleMachine = map.nearestBottleMachine(position, visitedTargets);
-//                    }
-//
-//                    if (nearestTrashBin == null && nearestBottleMachine == null) {
-//                        System.out.println("Consumer" + id + ": wszytko pelne/odrzucone. Nie udalo sie wyznaczyc celu");
-//                        visitedTargets.clear();
-////                        bottles.clear();
-//                    } else if (nearestTrashBin == null) currentTarget = nearestBottleMachine;
-//                    else if (nearestBottleMachine == null) currentTarget = nearestTrashBin;
-//                    else if (map.calculateDistance(position, nearestBottleMachine) < map.calculateDistance(position, nearestTrashBin)) {
-//                        currentTarget = nearestBottleMachine;
-//                    } else {
-//                        currentTarget = nearestTrashBin;
-//                    }
-//                }
-//                else{
-//                    int randomX;
-//                    int randomY;
-//                    do {
-//                        randomX = (int) (Math.random() * 90);
-//                        randomY = (int) (Math.random() * 26);
-//                    }while(!map.isWalkable(randomX, randomY));
-//                    currentTarget = new Position(randomX, randomY);
-//                }
-//            }
 
             if(currentTarget == null){
                 if(!bottles.isEmpty()){

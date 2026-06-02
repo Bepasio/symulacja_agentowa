@@ -79,33 +79,6 @@ public class Consumer extends Agent {
 
                 boolean interacted = false;
                 if (position.equals(currentTarget)) {
-//                    for (MapElement element : map.getElements()) {
-//                        if (element.getPosition().equals(position)) {
-//
-//                            if (element instanceof TrashBin bin) {
-//                                int thrownAway = 0;
-//
-//                                Iterator<Bottle> iterator = bottles.iterator();
-//                                while (iterator.hasNext()) {
-//                                    Bottle b = iterator.next();
-//                                    if (bin.addBottle(b)) {
-//                                        iterator.remove();
-//                                        thrownAway++;
-//                                    } else {
-//                                        break;
-//                                    }
-//                                }
-//                                LoggerService.getInstance().log("Consumer" + id + " wyrzucil " + thrownAway + " butelek do kosza. W plecaku zostalo: " + bottles.size());
-//                                interacted = true;
-//                                break;
-//                            } else if (element instanceof BottleMachine machine) {
-//                                int accepted = machine.processDeposit(this);
-//                                LoggerService.getInstance().log("Consumer" + id + " oddal " + accepted + " butelek do butelkomatu. W plecaku zostalo: " + bottles.size());
-//                                interacted = true;
-//                                break;
-//                            }
-//                        }
-//                    }
                     Interactable targetElement = map.getInteractableAt(position);
 
                     if(targetElement instanceof TrashBin bin){

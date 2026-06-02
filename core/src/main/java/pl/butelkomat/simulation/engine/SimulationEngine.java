@@ -29,7 +29,7 @@ public class SimulationEngine {
         int ticks = timeManager.update(deltaTime);
         for (int i = 0; i < ticks; i++) {
             //oproznianie butelkomatu i ladowanie papieru raz w tygodniu
-            if(timeManager.getDayOfWeekIndex() == 5 && timeManager.getHour() == 6){
+            if(timeManager.getDayOfWeekIndex() == 5 && timeManager.getHour() == 6 && timeManager.getMinute() == 0){
                 for(BottleMachine machine : map.getBottleMachines()){
                     machine.emptying();
                     machine.paperRefill();

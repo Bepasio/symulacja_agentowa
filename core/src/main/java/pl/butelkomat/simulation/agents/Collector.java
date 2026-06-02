@@ -50,7 +50,7 @@ public class Collector extends Agent {
             }
 
             if (currentTarget != null) {
-                moveTowards(currentTarget);
+                moveTowards(currentTarget, map);
 
                 if (position.equals(currentTarget)) {
                     if (!isFull && map.nearestTrashBin(position, visitedTargets) == null) {

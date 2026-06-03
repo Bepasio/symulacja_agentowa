@@ -7,12 +7,11 @@ import pl.butelkomat.simulation.world.Position;
 import java.util.Stack;
 
 public class TrashBin implements MapElement, Interactable {
-    private final int capacity;
+    private final int capacity = 50;
     private final Stack<Bottle> bottles; //wrzucamy butelki na stos, jak collector wyciąga je z kosza to bierze 'od gory'
     private Position position;
 
-    public TrashBin(int capacity, Position position) {
-        this.capacity = capacity;
+    public TrashBin(Position position) {
         this.bottles = new Stack<>();
         this.position = position;
     }

@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class BottleMachine implements MapElement, Interactable {
-    private final int capacity;
+    private final int capacity = 200;
     private final ArrayList<Bottle> bottles;
-    private final int maxPaperStock;
-    private int paperStock;
+    private final int maxPaperStock = 100;
+    private int paperStock ;
     private Position position;
     private final double bottlePrice = 0.50;
 
@@ -22,11 +22,9 @@ public class BottleMachine implements MapElement, Interactable {
         return bottles.size() < capacity && paperStock > 0;
     }
 
-    public BottleMachine(int capacity, int paperStock, Position position) {
-        this.capacity = capacity;
+    public BottleMachine(Position position) {
         this.bottles = new ArrayList<>();
-        this.maxPaperStock = paperStock;
-        this.paperStock = paperStock;
+        this.paperStock = maxPaperStock;
         this.position = position;
     }
 

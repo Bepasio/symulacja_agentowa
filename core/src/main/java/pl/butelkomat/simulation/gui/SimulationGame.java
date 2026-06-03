@@ -134,10 +134,13 @@ public class SimulationGame extends ApplicationAdapter {
         //tutaj musi byc input i bedziemy wskazywac ile jakich agentow dodajemy
         DataLoader loader = new DataLoader();
         loader.loadZones(worldMap, "cfg/zones.txt");
-        loader.loadElements(worldMap, "cfg/butelkomats.txt", ElementType.BOTTLE_MACHINE);
-        loader.loadElements(worldMap, "cfg/trashBins.txt", ElementType.TRASH_BIN);
+//        loader.loadElements(worldMap, "cfg/butelkomats.txt", ElementType.BOTTLE_MACHINE);
+//        loader.loadElements(worldMap, "cfg/trashBins.txt", ElementType.TRASH_BIN);
         addCollectors(50, worldMap);
         addConsumers(50, worldMap);
+        addBottleMachines(50, worldMap);
+        addTrashBins(50, worldMap);
+
         //te 50tki zamienic zmienna ktora bedzie inputowana
 
         engine = new SimulationEngine(worldMap);
@@ -467,6 +470,20 @@ public class SimulationGame extends ApplicationAdapter {
         for(int i = 0; i < value; i++){
             Position consumerPos = worldMap.getRandomPosition();
             worldMap.addElement(new Collector(consumerPos));
+        }
+    }
+
+    public void addTrashBins(int value, WorldMap worldMap){
+        for(int i = 0; i < value; i++){
+            Position trashBinPos = worldMap.getRandomPosition();
+            worldMap.addElement(new TrashBin(trashBinPos));
+        }
+    }
+
+    public void addBottleMachines(int value, WorldMap worldMap){
+        for(int i = 0; i < value; i++){
+            Position bottleMachinePos = worldMap.getRandomPosition();
+            worldMap.addElement(new BottleMachine(bottleMachinePos));
         }
     }
 

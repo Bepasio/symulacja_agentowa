@@ -2,6 +2,7 @@ package pl.butelkomat.simulation.utils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import pl.butelkomat.simulation.agents.Agent;
 import pl.butelkomat.simulation.agents.Collector;
 import pl.butelkomat.simulation.agents.Consumer;
 import pl.butelkomat.simulation.infrastructure.BottleMachine;
@@ -54,8 +55,8 @@ public class DataLoader {
                 String line = reader.nextLine();
                 if (line.trim().isEmpty()) continue;
                 String[] data = line.split(",");
-                worldMap.addZone(new Zone(data[0], Integer.parseInt(data[1]), Integer.parseInt(data[2]), 
-                                          Integer.parseInt(data[3]), Integer.parseInt(data[4]), 
+                worldMap.addZone(new Zone(data[0], Integer.parseInt(data[1]), Integer.parseInt(data[2]),
+                                          Integer.parseInt(data[3]), Integer.parseInt(data[4]),
                                           Double.parseDouble(data[5])));
             }
             reader.close();

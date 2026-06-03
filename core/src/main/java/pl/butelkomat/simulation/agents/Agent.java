@@ -15,7 +15,7 @@ import java.util.List;
 public abstract class Agent implements MapElement {
     protected Position position;
     protected int backpackCapacity;
-    public ArrayList<Bottle> bottles;
+    protected ArrayList<Bottle> bottles;
     protected Position currentTarget;
     protected ArrayList<Position> visitedTargets;
     protected int id;
@@ -83,6 +83,10 @@ public abstract class Agent implements MapElement {
 
     public int getCapacity(){
         return backpackCapacity;
+    }
+
+    public ArrayList<Bottle> getBottles() {
+        return bottles;
     }
 
     public void addMoney(double amount) {

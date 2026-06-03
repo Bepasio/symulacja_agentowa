@@ -43,7 +43,7 @@ public class BottleMachine implements MapElement, Interactable {
         }
 
         int acceptedBottles = 0;
-        Iterator<Bottle> iterator = agent.bottles.iterator();
+        Iterator<Bottle> iterator = agent.getBottles().iterator();
 
         while (iterator.hasNext()) {
             if (bottles.size() >= capacity) {

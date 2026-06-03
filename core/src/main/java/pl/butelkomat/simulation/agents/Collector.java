@@ -33,13 +33,7 @@ public class Collector extends Agent {
 
                     if (currentTarget == null) {
                         visitedTargets.clear();
-                        int randomX;
-                        int randomY;
-                        do {
-                            randomX = (int) (Math.random() * 90);
-                            randomY = (int) (Math.random() * 26);
-                        }while(!map.isWalkable(randomX, randomY));
-                        currentTarget = new Position(randomX, randomY);
+                        currentTarget = map.getRandomPosition();
                     }
                 } else {
                     currentTarget = map.nearestBottleMachine(position, visitedTargets);

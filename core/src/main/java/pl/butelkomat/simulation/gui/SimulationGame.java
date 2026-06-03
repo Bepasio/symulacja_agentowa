@@ -131,29 +131,14 @@ public class SimulationGame extends ApplicationAdapter {
         worldMap.loadBackgroundFromAscii("cfg/wroclaw_map.txt");
 
         // 2. Ładowanie Twoich plików konfiguracyjnych!
+        //tutaj musi byc input i bedziemy wskazywac ile jakich agentow dodajemy
         DataLoader loader = new DataLoader();
         loader.loadZones(worldMap, "cfg/zones.txt");
         loader.loadElements(worldMap, "cfg/butelkomats.txt", ElementType.BOTTLE_MACHINE);
         loader.loadElements(worldMap, "cfg/trashBins.txt", ElementType.TRASH_BIN);
-
-        //tymczaowo dodani
-        // --- CONSUMERZY (Mieszkańcy generujący śmieci) ---
-        worldMap.addElement(new Consumer(new Position(10, 10)));
-        worldMap.addElement(new Consumer(new Position(15, 5)));
-        worldMap.addElement(new Consumer(new Position(5, 22)));
-        worldMap.addElement(new Consumer(new Position(28, 16)));
-        worldMap.addElement(new Consumer(new Position(42, 13)));
-        worldMap.addElement(new Consumer(new Position(50, 24)));
-        worldMap.addElement(new Consumer(new Position(63, 5)));
-        worldMap.addElement(new Consumer(new Position(72, 21)));
-        worldMap.addElement(new Consumer(new Position(82, 12)));
-        worldMap.addElement(new Consumer(new Position(87, 2)));
-        worldMap.addElement(new Consumer(new Position(35, 8)));
-
-        // --- COLLECTORZY (Śmieciarki / Służby oczyszczania) ---
-        worldMap.addElement(new Collector(new Position(40, 12))); // Główna baza w centrum
-        worldMap.addElement(new Collector(new Position(2, 2)));   // Północno-zachodni rewir
-        worldMap.addElement(new Collector(new Position(85, 23))); // Południowo-wschodni rewir
+        addCollectors(50, worldMap);
+        addConsumers(50, worldMap);
+        //te 50tki zamienic zmienna ktora bedzie inputowana
 
         engine = new SimulationEngine(worldMap);
         engine.getTimeManager().setSpeedMultiplier(1.0f);
@@ -468,6 +453,38 @@ public class SimulationGame extends ApplicationAdapter {
         }
         if (sliderStyle.knobBefore instanceof TextureRegionDrawable) {
             ((TextureRegionDrawable) sliderStyle.knobBefore).getRegion().getTexture().dispose();
+        }
+    }
+
+    public void addConsumers(int value, WorldMap worldMap){
+        int Xrange = worldMap.getWidth();
+        int Yrange = worldMap.getHeight();
+
+        for(int i = 0; i < value; i++) {
+            int randX;
+            int randY;
+            do {
+                randX = (int) (Math.random() * Xrange);
+                randY = (int) (Math.random() * Yrange);
+            }while(!worldMap.isWalkable(randX, randY));
+            Position consumerPos = new Position(randX, randY);
+            worldMap.addElement(new Consumer(consumerPos));
+        }
+    }
+
+    public void addCollectors(int value, WorldMap worldMap){
+        int Xrange = worldMap.getWidth();
+        int Yrange = worldMap.getHeight();
+
+        for(int i = 0; i < value; i++) {
+            int randX;
+            int randY;
+            do {
+                randX = (int) (Math.random() * Xrange);
+                randY = (int) (Math.random() * Yrange);
+            }while(!worldMap.isWalkable(randX, randY));
+            Position collectorPos = new Position(randX, randY);
+            worldMap.addElement(new Collector(collectorPos));
         }
     }
 

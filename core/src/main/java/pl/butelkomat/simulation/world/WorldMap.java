@@ -301,7 +301,9 @@ public class WorldMap {
     public int everyBottleMachineCapacity(){
         int sum = 0;
         for (MapElement element : elements) {
-            sum += element.getCapacity();
+            if(element instanceof BottleMachine) {
+                sum += element.getCapacity();
+            }
         }
         return sum;
     }
@@ -309,7 +311,9 @@ public class WorldMap {
     public int everyTrashBinCapacity(){
         int sum = 0;
         for (MapElement element : elements) {
-            sum += element.getCapacity();
+            if(element instanceof TrashBin) {
+                sum += element.getCapacity();
+            }
         }
         return sum;
     }

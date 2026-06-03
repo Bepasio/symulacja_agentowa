@@ -318,6 +318,18 @@ public class WorldMap {
         return sum;
     }
 
+    public Position getRandomPosition() {
+        int Xrange = width;
+        int Yrange = height;
+
+        int randX;
+        int randY;
+        do {
+            randX = (int) (Math.random() * Xrange);
+            randY = (int) (Math.random() * Yrange);
+        } while (!isWalkable(randX, randY));
+        return new Position(randX, randY);
+    }
     public int getWidth() { return width; }
     public int getHeight() { return height; }
     public TileType getTileType(int x, int y) { return terrainGrid[y][x]; }

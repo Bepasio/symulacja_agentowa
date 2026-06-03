@@ -457,34 +457,16 @@ public class SimulationGame extends ApplicationAdapter {
     }
 
     public void addConsumers(int value, WorldMap worldMap){
-        int Xrange = worldMap.getWidth();
-        int Yrange = worldMap.getHeight();
-
-        for(int i = 0; i < value; i++) {
-            int randX;
-            int randY;
-            do {
-                randX = (int) (Math.random() * Xrange);
-                randY = (int) (Math.random() * Yrange);
-            }while(!worldMap.isWalkable(randX, randY));
-            Position consumerPos = new Position(randX, randY);
+        for(int i = 0; i < value; i++){
+            Position consumerPos = worldMap.getRandomPosition();
             worldMap.addElement(new Consumer(consumerPos));
         }
     }
 
     public void addCollectors(int value, WorldMap worldMap){
-        int Xrange = worldMap.getWidth();
-        int Yrange = worldMap.getHeight();
-
-        for(int i = 0; i < value; i++) {
-            int randX;
-            int randY;
-            do {
-                randX = (int) (Math.random() * Xrange);
-                randY = (int) (Math.random() * Yrange);
-            }while(!worldMap.isWalkable(randX, randY));
-            Position collectorPos = new Position(randX, randY);
-            worldMap.addElement(new Collector(collectorPos));
+        for(int i = 0; i < value; i++){
+            Position consumerPos = worldMap.getRandomPosition();
+            worldMap.addElement(new Collector(consumerPos));
         }
     }
 

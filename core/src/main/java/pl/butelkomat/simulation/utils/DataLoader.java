@@ -27,14 +27,14 @@ public class DataLoader {
                 switch (type) {
                     case TRASH_BIN:
                         int trashCapacity = Integer.parseInt(data[0]);
-                        Position trashPos = new Position(Integer.parseInt(data[1]), Integer.parseInt(data[2]));
+                        Position trashPos = worldMap.getRandomPosition();
                         worldMap.addElement(new TrashBin(trashCapacity, trashPos));
                         break;
 
                     case BOTTLE_MACHINE:
                         int bottleCapacity = Integer.parseInt(data[0]);
                         int paperStock = Integer.parseInt(data[1]);
-                        Position bottlePos = new Position(Integer.parseInt(data[2]), Integer.parseInt(data[3]));
+                        Position bottlePos = worldMap.getRandomPosition();
                         worldMap.addElement(new BottleMachine(bottleCapacity, paperStock, bottlePos));
                         break;
                 }
@@ -44,7 +44,6 @@ public class DataLoader {
         } catch (Exception e) {
             LoggerService.getInstance().logError("Błąd ładowania śmietników: " + e.getMessage());
         }
-//dodane z palca tymczasowo
     }
 
     public void loadZones(WorldMap worldMap, String name) {

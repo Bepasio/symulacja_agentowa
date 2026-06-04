@@ -34,6 +34,8 @@ import pl.butelkomat.simulation.world.Position;
 import pl.butelkomat.simulation.world.WorldMap;
 import pl.butelkomat.simulation.world.ElementType;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;    // DODANE
+import com.badlogic.gdx.scenes.scene2d.ui.TextField; // DODANE
 
 import java.util.ArrayList;
 
@@ -48,6 +50,9 @@ public class SimulationGame extends ApplicationAdapter {
     private Skin skin;
     private Slider speedSlider;
     private Label speedLabel;
+
+    // flaga sprawdzająca czy user wyłączył to okienko startowe
+    private boolean simulationStarted = false;
 
     // Etykiety statystyk
     private Label consumersLabel;
@@ -68,7 +73,7 @@ public class SimulationGame extends ApplicationAdapter {
     private Texture textureWater;
     private Texture textureGrass;
     private Texture texturePath;
-    private Texture textureWall;      // ściana/budynek
+    private Texture textureWall;
     private Texture textureBottle;
     private Texture textureTrash;
 
@@ -78,9 +83,6 @@ public class SimulationGame extends ApplicationAdapter {
     //czas
     private Label timeLabel;
 
-    /**
-     * Tworzy teksturę PNG o rozmiarze TILE_SIZE x TILE_SIZE z danym kolorem
-     */
     private Texture createTextureFromColor(Color color) {
         Pixmap pixmap = new Pixmap(TILE_SIZE, TILE_SIZE, Pixmap.Format.RGBA8888);
         pixmap.setColor(color);
@@ -90,15 +92,10 @@ public class SimulationGame extends ApplicationAdapter {
         return texture;
     }
 
-    /**
-     * Tworzy teksturę PNG z wzorem/teksturą (np. trawa, woda)
-     */
     private Texture createPatternTexture(Color baseColor, Color accentColor) {
         Pixmap pixmap = new Pixmap(TILE_SIZE, TILE_SIZE, Pixmap.Format.RGBA8888);
-        // Wypełnij bazowym kolorem
         pixmap.setColor(baseColor);
         pixmap.fill();
-        // Dodaj wzór
         pixmap.setColor(accentColor);
         for (int i = 0; i < TILE_SIZE; i += 4) {
             pixmap.drawPixel(i, i);
@@ -109,9 +106,6 @@ public class SimulationGame extends ApplicationAdapter {
         return texture;
     }
 
-    /**
-     * zostawcie tę sekcję bo drawable jest do koloru suwaka!!!
-     */
     private Drawable createGrayDrawable(Color color) {
         Pixmap pixmap = new Pixmap(4, 4, Pixmap.Format.RGBA8888);
         pixmap.setColor(color);
@@ -125,23 +119,22 @@ public class SimulationGame extends ApplicationAdapter {
     public void create() {
         LoggerService.getInstance().log("=== Starowanie symulacji ===");
 
-        WorldMap worldMap = new WorldMap(135, 39);
+        // inicjalizacja skina i stage na samym początku,żeby z nich skorzystać w oknie dialogowym
+        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        stage = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(stage);
 
-        // 1. Ładowanie tła z ASCII
+        // worldMap musi być final do odwołania
+        final WorldMap worldMap = new WorldMap(135, 39);
+
+        //  ladowanie tła z ASCII
         worldMap.loadBackgroundFromAscii("cfg/wroclaw_map.txt");
 
-        // 2. Ładowanie Twoich plików konfiguracyjnych!
-        //tutaj musi byc input i bedziemy wskazywac ile jakich agentow dodajemy
+        // ladowanie plików konfiguracyjnych!!!
         DataLoader loader = new DataLoader();
         loader.loadZones(worldMap, "cfg/zones.txt");
-//        loader.loadElements(worldMap, "cfg/butelkomats.txt", ElementType.BOTTLE_MACHINE);
-//        loader.loadElements(worldMap, "cfg/trashBins.txt", ElementType.TRASH_BIN);
-        addCollectors(50, worldMap);
-        addConsumers(50, worldMap);
-        addBottleMachines(50, worldMap);
-        addTrashBins(50, worldMap);
 
-        //te 50tki zamienic zmienna ktora bedzie inputowana
+        // wywaliłem stąd te wywołania z dodaniem całej ekipy i przeniosłem niżej do zatwierdzenia dialogu
 
         engine = new SimulationEngine(worldMap);
         engine.getTimeManager().setSpeedMultiplier(1.0f);
@@ -149,28 +142,10 @@ public class SimulationGame extends ApplicationAdapter {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        // zmiana renderu na sprite
         spriteBatch = new SpriteBatch();
-        shapeRenderer = new ShapeRenderer();  // zostawcie to do UI jakby się z...epsuło
+        shapeRenderer = new ShapeRenderer();
 
-        /* TUTAJ BYŁO SZPONCENIE TEKSTUR W RAMIE (SPRITE'Y BEZUŻYTECZNE)
-        // ładowanie tekstur PNG dla terenu
-        textureWater = createPatternTexture(new Color(0.2f, 0.5f, 0.8f, 1.0f), new Color(0.1f, 0.3f, 0.6f, 1.0f));
-        textureGrass = createPatternTexture(new Color(0.2f, 0.7f, 0.2f, 1.0f), new Color(0.1f, 0.5f, 0.1f, 1.0f));
-        texturePath = createTextureFromColor(new Color(0.9f, 0.7f, 0.5f, 1.0f));  // Beż/piasek
-        textureWall = createTextureFromColor(new Color(0.5f, 0.5f, 0.5f, 1.0f));   // Szarość dla ścian
-//        textureBottle = createTextureFromColor(new Color(0.2f, 0.8f, 0.2f, 1.0f)); // Zielony
-//        textureTrash = createTextureFromColor(new Color(0.7f, 0.7f, 0.7f, 1.0f));  // Szary
-        // Jasno szary (Śmietnik)
-        textureTrash = createTextureFromColor(new Color(0.8f, 0.8f, 0.8f, 1.0f));
-
-        // Wyraźny żółty (Butelkomat)
-        textureBottle = createTextureFromColor(new Color(1.0f, 0.9f, 0.1f, 1.0f));
-        textureConsumer = createTextureFromColor(new Color(0.8f, 0.2f, 0.2f, 1.0f)); // Czerwony consumer
-        textureCollector = createTextureFromColor(new Color(0.2f, 0.2f, 0.8f, 1.0f)); // Niebieski collector
-        */
-
-        // Wczytywanie prawdziwych plików PNG z folderu assets/textures/
+        // Wczytywanie plików PNG
         textureWater = new Texture(Gdx.files.internal("textures/water.png"));
         textureGrass = new Texture(Gdx.files.internal("textures/grass.png"));
         texturePath = new Texture(Gdx.files.internal("textures/path.png"));
@@ -180,36 +155,28 @@ public class SimulationGame extends ApplicationAdapter {
         textureConsumer = new Texture(Gdx.files.internal("textures/consumer.png"));
         textureCollector = new Texture(Gdx.files.internal("textures/collector.png"));
 
-        // init UI z Scene2D
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
-        stage = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(stage);
-
-        // tworzenie tabeli UI
-        Table table = new Table();
+        // tworzenie tabeli UI (HUD i statystyki) (zmieniona na final)
+        final Table table = new Table();
         table.setFillParent(true);
         table.top().left().pad(10);
+        table.setVisible(false); // domyślnie schowane przed startem
 
         // label wyświetlający aktualną prędkość
         speedLabel = new Label("Predkosc: 1.0x", skin);
         table.add(speedLabel).padBottom(5).row();
 
-        // slider do kontroli prędkości (na razie zakres 0.1x do 5.0x)
-        // zakres 30x na razie bo powyzej juz laguje animacja
         speedSlider = new Slider(0.1f, 300.0f, 0.1f, false, skin);
         speedSlider.setValue(1.0f);
 
-        // a tu macie setowanie koloru suwaka do prędkości (na razie)
         Slider.SliderStyle sliderStyle = speedSlider.getStyle();
-        sliderStyle.background = createGrayDrawable(new Color(0.3f, 0.3f, 0.3f, 1.0f));      // Ciemnoszary background (ścieżka)
-        sliderStyle.knob = createGrayDrawable(new Color(0.7f, 0.7f, 0.7f, 1.0f));             // knob
-        sliderStyle.knobBefore = createGrayDrawable(new Color(0.5f, 0.5f, 0.5f, 1.0f));       // Średnio szary dla części "przesunięty"
+        sliderStyle.background = createGrayDrawable(new Color(0.3f, 0.3f, 0.3f, 1.0f));
+        sliderStyle.knob = createGrayDrawable(new Color(0.7f, 0.7f, 0.7f, 1.0f));
+        sliderStyle.knobBefore = createGrayDrawable(new Color(0.5f, 0.5f, 0.5f, 1.0f));
 
-        // tu fragment od szerokości gałki (Mati w końcu trafi w suwak... mam taką nadzieję)
-        sliderStyle.knob.setMinWidth(20);          // zerokość
-        sliderStyle.knob.setMinHeight(20);         // ysokość
-        sliderStyle.background.setMinHeight(8);    // wysokość szarego paska
-        sliderStyle.knobBefore.setMinHeight(8);    // wysokość paska przed gałką
+        sliderStyle.knob.setMinWidth(20);
+        sliderStyle.knob.setMinHeight(20);
+        sliderStyle.background.setMinHeight(8);
+        sliderStyle.knobBefore.setMinHeight(8);
 
         speedSlider.addListener(new ChangeListener() {
             @Override
@@ -225,9 +192,7 @@ public class SimulationGame extends ApplicationAdapter {
         pauseButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-                //zmienia stan w simulationEngine
                 engine.togglePause();
-
                 if (engine.isPaused()) {
                     pauseButton.setText("Wznow");
                     LoggerService.getInstance().log("--- SYMULACJA WSTRZYMANA ---");
@@ -239,13 +204,10 @@ public class SimulationGame extends ApplicationAdapter {
         });
         table.add(pauseButton).width(150).padBottom(20).row();
 
-        //czas
         timeLabel = new Label("Zegar: Poniedzialek 00:00", skin);
         timeLabel.setColor(Color.YELLOW);
         table.add(timeLabel).padBottom(15).row();
 
-        // full staty
-        // Inicjalizacja etykiet statystyk
         consumersLabel = new Label("Konsumenci: 0", skin);
         table.add(consumersLabel).padBottom(3).row();
 
@@ -273,34 +235,90 @@ public class SimulationGame extends ApplicationAdapter {
         trashBinsBottleLabel = new Label("Butelki: 0", skin);
         table.add(trashBinsBottleLabel).padBottom(3).row();
 
-
         stage.addActor(table);
 
-        // ===== PANEL LOGÓW =====
-        Table logsTable = new Table();
+        // logi też zmieniona na final
+        final Table logsTable = new Table();
         logsTable.setFillParent(true);
         logsTable.top().right().pad(10);
+        logsTable.setVisible(false); // ukryte przed startem
 
-        // Etykieta "Logi"
         Label logsTitle = new Label("Logi symulacji:", skin);
         logsTable.add(logsTitle).padBottom(5).row();
 
-        // Pole tekstowe dla logów
         logsTextArea = new TextArea("", skin);
         logsTextArea.setDisabled(true);
         logsTextArea.setSize(350, 150);
 
-        // ScrollPane dla tekstu
         logsScrollPane = new ScrollPane(logsTextArea, skin);
         logsScrollPane.setSize(350, 150);
         logsTable.add(logsScrollPane).width(350).height(150).row();
 
         stage.addActor(logsTable);
+
+
+        // tu jest początek nówki, dialogówki
+        final TextField collectorsField = new TextField("50", skin);
+        final TextField consumersField = new TextField("50", skin);
+        final TextField machinesField = new TextField("50", skin);
+        final TextField binsField = new TextField("50", skin);
+
+        Dialog setupDialog = new Dialog("Konfiguracja poczatkowa", skin) {
+            @Override
+            protected void result(Object object) {
+                int countCollectors = 50;
+                int countConsumers = 50;
+                int countMachines = 50;
+                int countBins = 50;
+
+                // zabezpieczone parsowanie wpisanych wartości jak się spartoli, to będzie wszędzie 50
+                try {
+                    countCollectors = Integer.parseInt(collectorsField.getText());
+                    countConsumers = Integer.parseInt(consumersField.getText());
+                    countMachines = Integer.parseInt(machinesField.getText());
+                    countBins = Integer.parseInt(binsField.getText());
+                } catch (NumberFormatException e) {
+                    LoggerService.getInstance().log("Blad parsowania liczb! Uzyto domyslnych wartosci (50).");
+                }
+
+                // przypisywanie dynamicznych wartości do metod mapy
+                addCollectors(countCollectors, worldMap);
+                addConsumers(countConsumers, worldMap);
+                addBottleMachines(countMachines, worldMap);
+                addTrashBins(countBins, worldMap);
+
+                // odpalenie pętli i pokazanie paneli statystyk i logów
+                simulationStarted = true;
+                table.setVisible(true);
+                logsTable.setVisible(true);
+            }
+        };
+
+        // tabelka do wpisania wartości
+        Table dialogContent = setupDialog.getContentTable();
+        dialogContent.pad(20);
+        dialogContent.add(new Label("Liczba kolektorow:", skin)).left().pad(5);
+        dialogContent.add(collectorsField).width(70).pad(5).row();
+
+        dialogContent.add(new Label("Liczba konsumentow:", skin)).left().pad(5);
+        dialogContent.add(consumersField).width(70).pad(5).row();
+
+        dialogContent.add(new Label("Liczba butelkomatow:", skin)).left().pad(5);
+        dialogContent.add(machinesField).width(70).pad(5).row();
+
+        dialogContent.add(new Label("Liczba smietnikow:", skin)).left().pad(5);
+        dialogContent.add(binsField).width(70).pad(5).row();
+
+        setupDialog.button("Uruchom symulacje", true);
+        setupDialog.show(stage); // wyświetlenie wycentorwanego okna
     }
 
     @Override
     public void render() {
-        engine.update(Gdx.graphics.getDeltaTime());
+        // silnik aktualizuje logikę poruszania się tylko gdy konfiguracja została zakończona!!!!!
+        if (simulationStarted) {
+            engine.update(Gdx.graphics.getDeltaTime());
+        }
         camera.update();
 
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
@@ -312,25 +330,24 @@ public class SimulationGame extends ApplicationAdapter {
         WorldMap map = engine.getMap();
         int h = map.getHeight();
 
-        // Rysowanie mapy (terenu)... teraz z teksturami PNG
+        // Rysowanie terenu z ASCII (będzie widoczne jako ładne tło pod okienkiem konfiguracji... i hope so)
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < map.getWidth(); x++) {
                 float rx = x * TILE_SIZE;
                 float ry = (h - 1 - y) * TILE_SIZE;
                 WorldMap.TileType tile = map.getTileType(x, y);
 
-                Texture tileTexture = textureWall;  // domyślnie szara ściana
+                Texture tileTexture = textureWall;
                 if (tile != null) {
                     if (tile == WorldMap.TileType.WATER) tileTexture = textureWater;
                     else if (tile == WorldMap.TileType.GRASS) tileTexture = textureGrass;
                     else if (tile == WorldMap.TileType.PATH) tileTexture = texturePath;
                 }
-
                 spriteBatch.draw(tileTexture, rx, ry, TILE_SIZE, TILE_SIZE);
             }
         }
 
-        // rysowanie infrastruktury z teksturami
+        // Rysowanie elementów infrastruktury
         for (BottleMachine b : map.getBottleMachines()) {
             spriteBatch.draw(textureBottle, b.getPosition().getX() * TILE_SIZE, (h - 1 - b.getPosition().getY()) * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
@@ -339,43 +356,36 @@ public class SimulationGame extends ApplicationAdapter {
             spriteBatch.draw(textureTrash, t.getPosition().getX() * TILE_SIZE, (h - 1 - t.getPosition().getY()) * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
 
+        // Rysowanie agentów
         for (Agent a : map.getAgents()) {
-            // Sprawdzamy, kim jest agent, żeby dobrać kolor
             Texture tex;
-
             if (a instanceof Consumer) {
                 tex = textureConsumer;
             } else {
                 tex = textureCollector;
             }
-
             spriteBatch.draw(tex, a.getPosition().getX() * TILE_SIZE, (h - 1 - a.getPosition().getY()) * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
 
         spriteBatch.end();
 
-        // aktualizacja statystyk
-        updateStatistics();
+        // statystyki i logi aktualizuje dopiero po kliknięciu startu
+        if (simulationStarted) {
+            updateStatistics();
+            updateLogs();
+        }
 
-        // aktualizacja logów
-        updateLogs();
-
-        // aktualizacja i renderowanie UI
+        // renderowanie UI (w tym okna Dialog)
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
     }
 
-    /**
-     * aktualizuje etykiety ze statystykami mapy
-     */
     private void updateStatistics() {
         WorldMap map = engine.getMap();
         ArrayList<MapElement> elements = map.getElements();
 
-        //aktualizacja zegara
         timeLabel.setText(engine.getTimeManager().getFormattedTime());
 
-        // liczenie konsumentów i kolektorów
         int consumers = 0;
         int collectors = 0;
         int totalBottles = 0;
@@ -383,7 +393,7 @@ public class SimulationGame extends ApplicationAdapter {
         int consumerBottles = 0;
         int machineBottles = 0;
         int trashBinBottles = 0;
-        // zlicza wszystkie butelki jakie sa w obiegu (w smietnikach/butelkomatach/plecakach)
+
         for (MapElement element : elements) {
             if (element instanceof Consumer) {
                 consumers++;
@@ -396,14 +406,12 @@ public class SimulationGame extends ApplicationAdapter {
             } else if (element instanceof BottleMachine) {
                 machineBottles += element.getBottlesAmount();
             }
-            // dodawanie butli z plecaka
             totalBottles += element.getBottlesAmount();
         }
 
         int bottleMachines = map.getBottleMachines().size();
         int trashBins = map.getTrashBins().size();
 
-        // aktualizacja etykiet
         consumersLabel.setText("Konsumenci: " + consumers);
         collectorsLabel.setText("Kolektorzy: " + collectors);
         bottleMachinesLabel.setText("Butelkomaty: " + bottleMachines);
@@ -417,14 +425,10 @@ public class SimulationGame extends ApplicationAdapter {
         trashBinsBottleLabel.setText("Wszystkie butelki w smietnikach: " + trashBinBottles + "/" + map.everyTrashBinCapacity());
     }
 
-    /**
-     * Aktualizuje pole logów
-     */
     private void updateLogs() {
         LoggerService logger = LoggerService.getInstance();
         ArrayList<String> allLogs = logger.getLogs();
 
-        // Weź ostatnie 20 logów
         int startIdx = Math.max(0, allLogs.size() - 20);
         StringBuilder logsText = new StringBuilder();
 
@@ -433,7 +437,6 @@ public class SimulationGame extends ApplicationAdapter {
         }
 
         logsTextArea.setText(logsText.toString());
-        // Scroll do dołu
         logsScrollPane.setScrollPercentY(1.0f);
     }
 
@@ -444,7 +447,6 @@ public class SimulationGame extends ApplicationAdapter {
         stage.dispose();
         skin.dispose();
 
-        // czyszczenie tekstur terenu
         textureWater.dispose();
         textureGrass.dispose();
         texturePath.dispose();
@@ -452,7 +454,6 @@ public class SimulationGame extends ApplicationAdapter {
         textureBottle.dispose();
         textureTrash.dispose();
 
-        // czyszczenie tekstur z szarych drawable'ów
         Slider.SliderStyle sliderStyle = speedSlider.getStyle();
         if (sliderStyle.background instanceof TextureRegionDrawable) {
             ((TextureRegionDrawable) sliderStyle.background).getRegion().getTexture().dispose();

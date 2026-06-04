@@ -34,8 +34,8 @@ import pl.butelkomat.simulation.world.Position;
 import pl.butelkomat.simulation.world.WorldMap;
 import pl.butelkomat.simulation.world.ElementType;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;    // DODANE
-import com.badlogic.gdx.scenes.scene2d.ui.TextField; // DODANE
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 
 import java.util.ArrayList;
 
@@ -51,8 +51,13 @@ public class SimulationGame extends ApplicationAdapter {
     private Slider speedSlider;
     private Label speedLabel;
 
-    // flaga sprawdzająca czy user wyłączył to okienko startowe
+    // flagi sterujące stanem symulacji
     private boolean simulationStarted = false;
+    private boolean simulationEnded = false;     // flaga zakończenia symulacji
+
+    // zmienne do obsługi liczenia czasu (żeby po tygodniu pozytywny warunek wyznaczyć)
+    private int daysElapsed = 0;                  // licznik minionych dni
+    private String lastDay = "";                  // dzień z poprzedniej klatki
 
     // Etykiety statystyk
     private Label consumersLabel;
@@ -119,22 +124,15 @@ public class SimulationGame extends ApplicationAdapter {
     public void create() {
         LoggerService.getInstance().log("=== Starowanie symulacji ===");
 
-        // inicjalizacja skina i stage na samym początku,żeby z nich skorzystać w oknie dialogowym
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        // worldMap musi być final do odwołania
         final WorldMap worldMap = new WorldMap(135, 39);
-
-        //  ladowanie tła z ASCII
         worldMap.loadBackgroundFromAscii("cfg/wroclaw_map.txt");
 
-        // ladowanie plików konfiguracyjnych!!!
         DataLoader loader = new DataLoader();
         loader.loadZones(worldMap, "cfg/zones.txt");
-
-        // wywaliłem stąd te wywołania z dodaniem całej ekipy i przeniosłem niżej do zatwierdzenia dialogu
 
         engine = new SimulationEngine(worldMap);
         engine.getTimeManager().setSpeedMultiplier(1.0f);
@@ -145,7 +143,6 @@ public class SimulationGame extends ApplicationAdapter {
         spriteBatch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
 
-        // Wczytywanie plików PNG
         textureWater = new Texture(Gdx.files.internal("textures/water.png"));
         textureGrass = new Texture(Gdx.files.internal("textures/grass.png"));
         texturePath = new Texture(Gdx.files.internal("textures/path.png"));
@@ -155,13 +152,11 @@ public class SimulationGame extends ApplicationAdapter {
         textureConsumer = new Texture(Gdx.files.internal("textures/consumer.png"));
         textureCollector = new Texture(Gdx.files.internal("textures/collector.png"));
 
-        // tworzenie tabeli UI (HUD i statystyki) (zmieniona na final)
         final Table table = new Table();
         table.setFillParent(true);
         table.top().left().pad(10);
-        table.setVisible(false); // domyślnie schowane przed startem
+        table.setVisible(false);
 
-        // label wyświetlający aktualną prędkość
         speedLabel = new Label("Predkosc: 1.0x", skin);
         table.add(speedLabel).padBottom(5).row();
 
@@ -192,6 +187,7 @@ public class SimulationGame extends ApplicationAdapter {
         pauseButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+                if (simulationEnded) return; // Zablokuj pauzę po zakończeniu symulacji
                 engine.togglePause();
                 if (engine.isPaused()) {
                     pauseButton.setText("Wznow");
@@ -237,11 +233,10 @@ public class SimulationGame extends ApplicationAdapter {
 
         stage.addActor(table);
 
-        // logi też zmieniona na final
         final Table logsTable = new Table();
         logsTable.setFillParent(true);
         logsTable.top().right().pad(10);
-        logsTable.setVisible(false); // ukryte przed startem
+        logsTable.setVisible(false);
 
         Label logsTitle = new Label("Logi symulacji:", skin);
         logsTable.add(logsTitle).padBottom(5).row();
@@ -256,8 +251,6 @@ public class SimulationGame extends ApplicationAdapter {
 
         stage.addActor(logsTable);
 
-
-        // tu jest początek nówki, dialogówki
         final TextField collectorsField = new TextField("50", skin);
         final TextField consumersField = new TextField("50", skin);
         final TextField machinesField = new TextField("50", skin);
@@ -271,7 +264,6 @@ public class SimulationGame extends ApplicationAdapter {
                 int countMachines = 50;
                 int countBins = 50;
 
-                // zabezpieczone parsowanie wpisanych wartości jak się spartoli, to będzie wszędzie 50
                 try {
                     countCollectors = Integer.parseInt(collectorsField.getText());
                     countConsumers = Integer.parseInt(consumersField.getText());
@@ -281,20 +273,17 @@ public class SimulationGame extends ApplicationAdapter {
                     LoggerService.getInstance().log("Blad parsowania liczb! Uzyto domyslnych wartosci (50).");
                 }
 
-                // przypisywanie dynamicznych wartości do metod mapy
                 addCollectors(countCollectors, worldMap);
                 addConsumers(countConsumers, worldMap);
                 addBottleMachines(countMachines, worldMap);
                 addTrashBins(countBins, worldMap);
 
-                // odpalenie pętli i pokazanie paneli statystyk i logów
                 simulationStarted = true;
                 table.setVisible(true);
                 logsTable.setVisible(true);
             }
         };
 
-        // tabelka do wpisania wartości
         Table dialogContent = setupDialog.getContentTable();
         dialogContent.pad(20);
         dialogContent.add(new Label("Liczba kolektorow:", skin)).left().pad(5);
@@ -310,14 +299,15 @@ public class SimulationGame extends ApplicationAdapter {
         dialogContent.add(binsField).width(70).pad(5).row();
 
         setupDialog.button("Uruchom symulacje", true);
-        setupDialog.show(stage); // wyświetlenie wycentorwanego okna
+        setupDialog.show(stage);
     }
 
     @Override
     public void render() {
-        // silnik aktualizuje logikę poruszania się tylko gdy konfiguracja została zakończona!!!!!
-        if (simulationStarted) {
+        // tu poszła podmianka i silnik się aktualizuje jeżeli symulacia poszła, ale się nie skończyła
+        if (simulationStarted && !simulationEnded) {
             engine.update(Gdx.graphics.getDeltaTime());
+            checkSimulationEndConditions(); // sprawdzanie warunków końcowych w każdej klatce
         }
         camera.update();
 
@@ -330,7 +320,6 @@ public class SimulationGame extends ApplicationAdapter {
         WorldMap map = engine.getMap();
         int h = map.getHeight();
 
-        // Rysowanie terenu z ASCII (będzie widoczne jako ładne tło pod okienkiem konfiguracji... i hope so)
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < map.getWidth(); x++) {
                 float rx = x * TILE_SIZE;
@@ -347,7 +336,6 @@ public class SimulationGame extends ApplicationAdapter {
             }
         }
 
-        // Rysowanie elementów infrastruktury
         for (BottleMachine b : map.getBottleMachines()) {
             spriteBatch.draw(textureBottle, b.getPosition().getX() * TILE_SIZE, (h - 1 - b.getPosition().getY()) * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
@@ -356,7 +344,6 @@ public class SimulationGame extends ApplicationAdapter {
             spriteBatch.draw(textureTrash, t.getPosition().getX() * TILE_SIZE, (h - 1 - t.getPosition().getY()) * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
 
-        // Rysowanie agentów
         for (Agent a : map.getAgents()) {
             Texture tex;
             if (a instanceof Consumer) {
@@ -369,15 +356,109 @@ public class SimulationGame extends ApplicationAdapter {
 
         spriteBatch.end();
 
-        // statystyki i logi aktualizuje dopiero po kliknięciu startu
         if (simulationStarted) {
             updateStatistics();
             updateLogs();
         }
 
-        // renderowanie UI (w tym okna Dialog)
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
+    }
+
+    /**
+     * to weryfikuje kryteria zakończenia symulacji
+     */
+    private void checkSimulationEndConditions() {
+        WorldMap map = engine.getMap();
+
+        // zliczanie butelek w infrastrukturze pod kątem awarii
+        int machineBottles = 0;
+        int trashBinBottles = 0;
+        for (MapElement element : map.getElements()) {
+            if (element instanceof TrashBin) {
+                trashBinBottles += element.getBottlesAmount();
+            } else if (element instanceof BottleMachine) {
+                machineBottles += element.getBottlesAmount();
+            }
+        }
+
+        int maxMachineCapacity = map.everyBottleMachineCapacity();
+        int maxTrashCapacity = map.everyTrashBinCapacity();
+
+        // WARUNEK AWARII: jeśli istnieje i zapełniona
+        if (maxMachineCapacity > 0 && maxTrashCapacity > 0 &&
+                machineBottles >= maxMachineCapacity && trashBinBottles >= maxTrashCapacity) {
+            endSimulation(false);
+            return;
+        }
+
+        // śledzenie dni do pozytywnego endingu
+        String timeStr = engine.getTimeManager().getFormattedTime();
+        if (timeStr != null && !timeStr.isEmpty()) {
+            // wyciągnięcie członu
+            String currentDay = timeStr.split(" ")[0];
+
+            if (!currentDay.equals(lastDay)) {
+                if (!lastDay.isEmpty()) {
+                    daysElapsed++; // zliczenie przejścia na kolejny dzień
+                }
+                lastDay = currentDay;
+            }
+        }
+
+        // WARUNEK SUKCESU (7 dni bez awarii)
+        if (daysElapsed >= 7) {
+            endSimulation(true);
+        }
+    }
+
+    /**
+     * zakończenie symulacji i wyświetlenie okna podsumowania
+     */
+    private void endSimulation(boolean success) {
+        simulationEnded = true;
+
+        WorldMap map = engine.getMap();
+        int totalBottles = 0;
+        for (MapElement element : map.getElements()) {
+            totalBottles += element.getBottlesAmount();
+        }
+
+        // okno dialogowe z zakończeniem
+        Dialog summaryDialog = new Dialog("Koniec Symulacji", skin);
+        Table content = summaryDialog.getContentTable();
+        content.pad(25);
+
+        if (success) {
+            Label winLabel = new Label("SUKCES: Tydzien bezawaryjnej pracy!", skin);
+            winLabel.setColor(Color.GREEN);
+            content.add(winLabel).padBottom(15).row();
+            LoggerService.getInstance().log("=== SYMULACJA ZAKOŃCZONA SUKCESEM ===");
+        } else {
+            Label loseLabel = new Label("AWARIA: Wszystkie butelkomaty i smietniki sa pelne!", skin);
+            loseLabel.setColor(Color.RED);
+            content.add(loseLabel).padBottom(15).row();
+            LoggerService.getInstance().log("=== SYMULACJA PRZERWANA - AWARIA SYSTEMU ===");
+        }
+
+        // dane statystyczne do podsumowania
+        content.add(new Label("Czas zakonczenia: " + engine.getTimeManager().getFormattedTime(), skin)).left().padBottom(5).row();
+        content.add(new Label("Liczba aktywnych agentow: " + map.getAgents().size(), skin)).left().padBottom(5).row();
+        content.add(new Label("Butelkomaty: " + map.getBottleMachines().size(), skin)).left().padBottom(5).row();
+        content.add(new Label("Smietniki: " + map.getTrashBins().size(), skin)).left().padBottom(5).row();
+        content.add(new Label("Butelki w obiegu: " + totalBottles + "/" + map.getMaxBottleAmount(), skin)).left().padBottom(5).row();
+
+        summaryDialog.button("Zamknij program", true);
+
+        // zamknięcie apki
+        summaryDialog.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+                Gdx.app.exit();
+            }
+        });
+
+        summaryDialog.show(stage);
     }
 
     private void updateStatistics() {

@@ -202,8 +202,14 @@ public class SimulationGame extends ApplicationAdapter {
         // a tu macie setowanie koloru suwaka do prędkości (na razie)
         Slider.SliderStyle sliderStyle = speedSlider.getStyle();
         sliderStyle.background = createGrayDrawable(new Color(0.3f, 0.3f, 0.3f, 1.0f));      // Ciemnoszary background (ścieżka)
-        sliderStyle.knob = createGrayDrawable(new Color(0.7f, 0.7f, 0.7f, 1.0f));             // Siedmiodziesiątoszary knob
+        sliderStyle.knob = createGrayDrawable(new Color(0.7f, 0.7f, 0.7f, 1.0f));             // knob
         sliderStyle.knobBefore = createGrayDrawable(new Color(0.5f, 0.5f, 0.5f, 1.0f));       // Średnio szary dla części "przesunięty"
+
+        // tu fragment od szerokości gałki (Mati w końcu trafi w suwak... mam taką nadzieję)
+        sliderStyle.knob.setMinWidth(20);          // zerokość
+        sliderStyle.knob.setMinHeight(20);         // ysokość
+        sliderStyle.background.setMinHeight(8);    // wysokość szarego paska
+        sliderStyle.knobBefore.setMinHeight(8);    // wysokość paska przed gałką
 
         speedSlider.addListener(new ChangeListener() {
             @Override

@@ -367,27 +367,36 @@ public class SimulationGame extends ApplicationAdapter {
             }
         }
 
-        for (BottleMachine b : map.getBottleMachines()) {
-            float rx = offsetX + b.getPosition().getX() * TILE_SIZE * mapScale;
-            float ry = offsetY + (h - 1 - b.getPosition().getY()) * TILE_SIZE * mapScale;
-            spriteBatch.draw(textureBottle, rx, ry, TILE_SIZE * mapScale, TILE_SIZE * mapScale);
-        }
+//        for (BottleMachine b : map.getBottleMachines()) {
+//            float rx = offsetX + b.getPosition().getX() * TILE_SIZE * mapScale;
+//            float ry = offsetY + (h - 1 - b.getPosition().getY()) * TILE_SIZE * mapScale;
+//            spriteBatch.draw(textureBottle, rx, ry, TILE_SIZE * mapScale, TILE_SIZE * mapScale);
+//        }
+//
+//        for (TrashBin t : map.getTrashBins()) {
+//            float rx = offsetX + t.getPosition().getX() * TILE_SIZE * mapScale;
+//            float ry = offsetY + (h - 1 - t.getPosition().getY()) * TILE_SIZE * mapScale;
+//            spriteBatch.draw(textureTrash, rx, ry, TILE_SIZE * mapScale, TILE_SIZE * mapScale);
+//        }
+//
+//        for (Agent a : map.getAgents()) {
+//            Texture tex;
+//            if (a instanceof Consumer) {
+//                tex = textureConsumer;
+//            } else {
+//                tex = textureCollector;
+//            }
+//            float rx = offsetX + a.getPosition().getX() * TILE_SIZE * mapScale;
+//            float ry = offsetY + (h - 1 - a.getPosition().getY()) * TILE_SIZE * mapScale;
+//            spriteBatch.draw(tex, rx, ry, TILE_SIZE * mapScale, TILE_SIZE * mapScale);
+//        }
 
-        for (TrashBin t : map.getTrashBins()) {
-            float rx = offsetX + t.getPosition().getX() * TILE_SIZE * mapScale;
-            float ry = offsetY + (h - 1 - t.getPosition().getY()) * TILE_SIZE * mapScale;
-            spriteBatch.draw(textureTrash, rx, ry, TILE_SIZE * mapScale, TILE_SIZE * mapScale);
-        }
+        for(MapElement e : map.getElements()) {
+            Texture tex = getTextureForElement(e.getElementType());
 
-        for (Agent a : map.getAgents()) {
-            Texture tex;
-            if (a instanceof Consumer) {
-                tex = textureConsumer;
-            } else {
-                tex = textureCollector;
-            }
-            float rx = offsetX + a.getPosition().getX() * TILE_SIZE * mapScale;
-            float ry = offsetY + (h - 1 - a.getPosition().getY()) * TILE_SIZE * mapScale;
+            float rx = offsetX + e.getPosition().getX() * TILE_SIZE * mapScale;
+            float ry = offsetY + (h - 1 - e.getPosition().getY()) * TILE_SIZE * mapScale;
+
             spriteBatch.draw(tex, rx, ry, TILE_SIZE * mapScale, TILE_SIZE * mapScale);
         }
 
@@ -614,6 +623,16 @@ public class SimulationGame extends ApplicationAdapter {
         for(int i = 0; i < value; i++){
             Position bottleMachinePos = worldMap.getRandomPosition();
             worldMap.addElement(new BottleMachine(bottleMachinePos));
+        }
+    }
+
+    private Texture getTextureForElement(ElementType type){
+        switch (type){
+            case BOTTLE_MACHINE: return textureBottle;
+            case TRASH_BIN:      return textureTrash;
+            case CONSUMER:       return textureConsumer;
+            case COLLECTOR:      return textureCollector;
+            default: return textureWater;
         }
     }
 

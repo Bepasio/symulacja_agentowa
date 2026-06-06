@@ -13,10 +13,12 @@ import java.util.Iterator;
 public class BottleMachine implements MapElement, Interactable {
     private final int capacity = 200;
     private final ArrayList<Bottle> bottles;
-    private final int maxPaperStock = 100;
+    private final int maxPaperStock = 60;
     private int paperStock ;
     private Position position;
     private final double bottlePrice = 0.50;
+    private int stressLevel = 0;
+    private boolean isBroken = false;
 
     public boolean canCollectBottle() {
         return bottles.size() < capacity && paperStock > 0;
@@ -42,6 +44,13 @@ public class BottleMachine implements MapElement, Interactable {
             return 0;
         }
 
+        double breakChance = stressLevel * 0.005;
+        if(Math.random() < breakChance) {
+            isBroken = true;
+            LoggerService.getInstance().logError("AWARIA! Butelkomat na " + position.getX() + "," + position.getY() + " zaciął się z przeciążenia!");
+            return 0;
+        }
+
         int acceptedBottles = 0;
         Iterator<Bottle> iterator = agent.getBottles().iterator();
 
@@ -55,6 +64,7 @@ public class BottleMachine implements MapElement, Interactable {
                 bottles.add(bottle);
                 iterator.remove();
                 acceptedBottles++;
+                stressLevel++;
             }
         }
 
@@ -70,6 +80,15 @@ public class BottleMachine implements MapElement, Interactable {
         }
 
         return acceptedBottles;
+    }
+
+    public void repair(){
+        isBroken = false;
+        stressLevel = 0;
+    }
+
+    public boolean isBroken() {
+        return isBroken;
     }
 
     public void paperRefill() {

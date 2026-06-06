@@ -186,6 +186,17 @@ public class WorldMap {
         return elements;
     }
 
+    public ArrayList<MapElement> getInteractables() {
+        ArrayList<MapElement> interactables = new ArrayList<>();
+        for (MapElement element : elements) {
+            if (element instanceof Interactable) {
+                interactables.add(element);
+            }
+        }
+        return elements;
+    }
+
+
     public boolean isWalkable(int x, int y) {
         // Zabezpieczenie przed wyjściem poza mapę
         if (x < 0 || x >= width || y < 0 || y >= height) return false;

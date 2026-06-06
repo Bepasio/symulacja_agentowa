@@ -9,10 +9,7 @@ import pl.butelkomat.simulation.infrastructure.Interactable;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
 import pl.butelkomat.simulation.item.Bottle;
 import pl.butelkomat.simulation.utils.LoggerService;
-import pl.butelkomat.simulation.world.MapElement;
-import pl.butelkomat.simulation.world.Position;
-import pl.butelkomat.simulation.world.WorldMap;
-import pl.butelkomat.simulation.world.Zone;
+import pl.butelkomat.simulation.world.*;
 
 public class Consumer extends Agent {
     private static int consumerIdCounter = 1;
@@ -118,5 +115,8 @@ public class Consumer extends Agent {
                 }
             }
         }
+    }
+    public ElementType getElementType() {
+        return ElementType.CONSUMER;
     }
 }

@@ -26,6 +26,7 @@ import pl.butelkomat.simulation.agents.Collector;
 import pl.butelkomat.simulation.agents.Consumer;
 import pl.butelkomat.simulation.engine.SimulationEngine;
 import pl.butelkomat.simulation.infrastructure.BottleMachine;
+import pl.butelkomat.simulation.infrastructure.Interactable;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
 import pl.butelkomat.simulation.utils.DataLoader;
 import pl.butelkomat.simulation.utils.LoggerService;
@@ -87,6 +88,12 @@ public class SimulationGame extends ApplicationAdapter {
 
     //czas
     private Label timeLabel;
+
+    //
+    private int countCollectors = 50;
+    private int countConsumers = 50;
+    private int countMachines = 50;
+    private int countBins = 50;
 
     private Texture createTextureFromColor(Color color) {
         Pixmap pixmap = new Pixmap(TILE_SIZE, TILE_SIZE, Pixmap.Format.RGBA8888);
@@ -259,10 +266,6 @@ public class SimulationGame extends ApplicationAdapter {
         Dialog setupDialog = new Dialog("Konfiguracja poczatkowa", skin) {
             @Override
             protected void result(Object object) {
-                int countCollectors = 50;
-                int countConsumers = 50;
-                int countMachines = 50;
-                int countBins = 50;
 
                 try {
                     countCollectors = Integer.parseInt(collectorsField.getText());
@@ -374,10 +377,19 @@ public class SimulationGame extends ApplicationAdapter {
         // zliczanie butelek w infrastrukturze pod kątem awarii
         int machineBottles = 0;
         int trashBinBottles = 0;
+        int brokenMachines = 0;
         for (MapElement element : map.getElements()) {
             if (element instanceof TrashBin) {
                 trashBinBottles += element.getBottlesAmount();
             } else if (element instanceof BottleMachine) {
+                if(((BottleMachine) element).isBroken()){
+                    brokenMachines++;
+                    if(brokenMachines > countMachines*0.8){
+                        endSimulation(false);
+                        LoggerService.getInstance().log("Więcej niż 80% butelkomatów jest zepsutych");
+                        return;
+                    }
+                }
                 machineBottles += element.getBottlesAmount();
             }
         }

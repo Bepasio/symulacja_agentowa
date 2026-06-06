@@ -36,6 +36,7 @@ public class SimulationEngine {
                     for (BottleMachine machine : map.getBottleMachines()) {
                         machine.emptying();
                         machine.paperRefill();
+                        machine.repair();
                     }
                     for (TrashBin bin : map.getTrashBins()) {
                         bin.emptying();

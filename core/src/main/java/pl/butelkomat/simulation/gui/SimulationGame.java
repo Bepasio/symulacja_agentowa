@@ -47,7 +47,7 @@ public class SimulationGame extends ApplicationAdapter {
     private OrthographicCamera camera;
     private final int TILE_SIZE = 16;
     private float mapScale = 1.0f;  // skala mapy
-    private final int GUI_HEIGHT = 220;  // wysokość panelu GUI (px)
+    private final int GUI_HEIGHT = 380;  // wysokość panelu GUI (px)
 
     private Stage stage;
     private Skin skin;

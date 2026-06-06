@@ -25,6 +25,8 @@ public class WorldMap {
     private final ArrayList<Interactable> interactables;
     private final ArrayList<Zone> zones;
 
+    private int litterAmount = 0;
+
     public WorldMap(int width, int height) {
         this.width = width;
         this.height = height;
@@ -341,6 +343,21 @@ public class WorldMap {
         } while (!isWalkable(randX, randY));
         return new Position(randX, randY);
     }
+
+    public void addLitter(int amount){
+        litterAmount += amount;
+    }
+
+    public int getLitterAmount(){
+        return litterAmount;
+    }
+
+    public double getLitterLevel(){
+        double percentage = (litterAmount / (double)(everyTrashBinCapacity() + everyBottleMachineCapacity())) * 100;
+
+        return Math.round(percentage * 100.0) / 100.0;
+    }
+
     public int getWidth() { return width; }
     public int getHeight() { return height; }
     public TileType getTileType(int x, int y) { return terrainGrid[y][x]; }

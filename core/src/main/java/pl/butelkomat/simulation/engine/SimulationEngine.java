@@ -41,12 +41,11 @@ public class SimulationEngine {
                     for (TrashBin bin : map.getTrashBins()) {
                         bin.emptying();
                     }
-
                     hasBeenEmptied = true;
                     LoggerService.getInstance().log("Służby miejskie opróżniły śmietniki i butelkomaty!");
-                }else if(timeManager.getDayOfWeekIndex() != 5){
-                    hasBeenEmptied = false;
                 }
+                }else if(timeManager.getDayOfWeekIndex() != 5){
+                hasBeenEmptied = false;
             }
             boolean movePhase = timeManager.shouldAgentsMove();
             for (Agent agent : map.getAgents()) {

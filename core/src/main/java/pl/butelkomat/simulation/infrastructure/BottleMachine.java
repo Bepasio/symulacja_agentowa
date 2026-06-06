@@ -44,7 +44,7 @@ public class BottleMachine implements MapElement, Interactable {
             return 0;
         }
 
-        double breakChance = stressLevel * 0.005;
+        double breakChance = stressLevel * 0.0005;
         if(Math.random() < breakChance) {
             isBroken = true;
             LoggerService.getInstance().logError("AWARIA! Butelkomat na " + position.getX() + "," + position.getY() + " zaciął się z przeciążenia!");

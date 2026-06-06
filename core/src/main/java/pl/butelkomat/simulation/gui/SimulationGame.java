@@ -70,6 +70,7 @@ public class SimulationGame extends ApplicationAdapter {
     private Label trashBinsBottleLabel;
     private Label bottleMachinesLabel;
     private Label trashBinsLabel;
+    private Label litterLevel;
 
     // Logi
     private TextArea logsTextArea;
@@ -238,6 +239,9 @@ public class SimulationGame extends ApplicationAdapter {
         trashBinsBottleLabel = new Label("Butelki: 0", skin);
         table.add(trashBinsBottleLabel).padBottom(3).row();
 
+        litterLevel = new Label("Butelki: 0", skin);
+        table.add(litterLevel).padBottom(3).row();
+
         stage.addActor(table);
 
         final Table logsTable = new Table();
@@ -372,6 +376,7 @@ public class SimulationGame extends ApplicationAdapter {
      * to weryfikuje kryteria zakończenia symulacji
      */
     private void checkSimulationEndConditions() {
+        String reason;
         WorldMap map = engine.getMap();
 
         // zliczanie butelek w infrastrukturze pod kątem awarii
@@ -385,7 +390,8 @@ public class SimulationGame extends ApplicationAdapter {
                 if(((BottleMachine) element).isBroken()){
                     brokenMachines++;
                     if(brokenMachines > countMachines*0.8){
-                        endSimulation(false);
+                        reason = "Więcej niż 80% butelkomatów jest zepsutych";
+                        endSimulation(false, reason);
                         LoggerService.getInstance().log("Więcej niż 80% butelkomatów jest zepsutych");
                         return;
                     }
@@ -398,9 +404,9 @@ public class SimulationGame extends ApplicationAdapter {
         int maxTrashCapacity = map.everyTrashBinCapacity();
 
         // WARUNEK AWARII: jeśli istnieje i zapełniona
-        if (maxMachineCapacity > 0 && maxTrashCapacity > 0 &&
-                machineBottles >= maxMachineCapacity && trashBinBottles >= maxTrashCapacity) {
-            endSimulation(false);
+        if (maxMachineCapacity > 0 && maxTrashCapacity > 0 && machineBottles >= maxMachineCapacity && trashBinBottles >= maxTrashCapacity) {
+            reason = "Wszystkie butelkomaty i śmietniki są zapełnione!";
+            endSimulation(false, reason);
             return;
         }
 
@@ -418,16 +424,23 @@ public class SimulationGame extends ApplicationAdapter {
             }
         }
 
+        if (map.getLitterLevel() > 10.0) {
+            reason = "Butelki wyrzucone na ziemie zajmują więcej niż 10% pojemności infrastruktury!";
+            endSimulation(false, reason);
+            return;
+        }
+
         // WARUNEK SUKCESU (7 dni bez awarii)
         if (daysElapsed >= 7) {
-            endSimulation(true);
+            reason = "SUKCES! Tydzień bezproblemowej pracy infrastruktury";
+            endSimulation(true, reason);
         }
     }
 
     /**
      * zakończenie symulacji i wyświetlenie okna podsumowania
      */
-    private void endSimulation(boolean success) {
+    private void endSimulation(boolean success, String reason) {
         simulationEnded = true;
 
         WorldMap map = engine.getMap();
@@ -442,12 +455,12 @@ public class SimulationGame extends ApplicationAdapter {
         content.pad(25);
 
         if (success) {
-            Label winLabel = new Label("SUKCES: Tydzien bezawaryjnej pracy!", skin);
+            Label winLabel = new Label(reason, skin);
             winLabel.setColor(Color.GREEN);
             content.add(winLabel).padBottom(15).row();
             LoggerService.getInstance().log("=== SYMULACJA ZAKOŃCZONA SUKCESEM ===");
         } else {
-            Label loseLabel = new Label("AWARIA: Wszystkie butelkomaty i smietniki sa pelne!", skin);
+            Label loseLabel = new Label(reason, skin);
             loseLabel.setColor(Color.RED);
             content.add(loseLabel).padBottom(15).row();
             LoggerService.getInstance().log("=== SYMULACJA PRZERWANA - AWARIA SYSTEMU ===");
@@ -516,6 +529,7 @@ public class SimulationGame extends ApplicationAdapter {
         wholeBottlesLabel.setText("Wszystkie butelki w obiegu: " + totalBottles + "/" + map.getMaxBottleAmount());
         bottleMachinesBottleLabel.setText("Wszystkie butelki w butelkomatach: " + machineBottles + "/" + map.everyBottleMachineCapacity());
         trashBinsBottleLabel.setText("Wszystkie butelki w smietnikach: " + trashBinBottles + "/" + map.everyTrashBinCapacity());
+        litterLevel.setText("Butelki smieci: " + map.getLitterLevel() + "% pojemności infrastruktury.");
     }
 
     private void updateLogs() {

@@ -45,7 +45,9 @@ public class SimulationGame extends ApplicationAdapter {
     private ShapeRenderer shapeRenderer;
     private SpriteBatch spriteBatch;
     private OrthographicCamera camera;
-    private final int TILE_SIZE = 18;
+    private final int TILE_SIZE = 16;
+    private float mapScale = 1.0f;  // skala mapy
+    private final int GUI_HEIGHT = 220;  // wysokość panelu GUI (px)
 
     private Stage stage;
     private Skin skin;
@@ -90,7 +92,6 @@ public class SimulationGame extends ApplicationAdapter {
     //czas
     private Label timeLabel;
 
-    //
     private int countCollectors = 50;
     private int countConsumers = 50;
     private int countMachines = 50;
@@ -145,6 +146,7 @@ public class SimulationGame extends ApplicationAdapter {
         engine = new SimulationEngine(worldMap);
         engine.getTimeManager().setSpeedMultiplier(1.0f);
 
+        // ustawienie kamery na cały rozmiar okna (żeby OpenGL nie rozciągał O_O)
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
@@ -160,13 +162,18 @@ public class SimulationGame extends ApplicationAdapter {
         textureConsumer = new Texture(Gdx.files.internal("textures/consumer.png"));
         textureCollector = new Texture(Gdx.files.internal("textures/collector.png"));
 
-        final Table table = new Table();
-        table.setFillParent(true);
-        table.top().left().pad(10);
-        table.setVisible(false);
+        // tabela układająca UI
+        final Table rootTable = new Table();
+        rootTable.setFillParent(true);
+        rootTable.top().pad(10);
+        rootTable.setVisible(false); // pokaże się po przejściu okienka konfiguracyjnego
+
+        // lewa sekcja (statystyki i sterowanie)
+        Table leftTable = new Table();
+        leftTable.top().left();
 
         speedLabel = new Label("Predkosc: 1.0x", skin);
-        table.add(speedLabel).padBottom(5).row();
+        leftTable.add(speedLabel).padBottom(5).row();
 
         speedSlider = new Slider(0.1f, 300.0f, 0.1f, false, skin);
         speedSlider.setValue(1.0f);
@@ -189,13 +196,13 @@ public class SimulationGame extends ApplicationAdapter {
                 speedLabel.setText(String.format("Predkosc: %.1fx", newSpeed));
             }
         });
-        table.add(speedSlider).width(150).padBottom(15).row();
+        leftTable.add(speedSlider).width(150).padBottom(15).row();
 
         TextButton pauseButton = new TextButton("Pauza", skin);
         pauseButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-                if (simulationEnded) return; // Zablokuj pauzę po zakończeniu symulacji
+                if (simulationEnded) return;
                 engine.togglePause();
                 if (engine.isPaused()) {
                     pauseButton.setText("Wznow");
@@ -206,61 +213,60 @@ public class SimulationGame extends ApplicationAdapter {
                 }
             }
         });
-        table.add(pauseButton).width(150).padBottom(20).row();
+        leftTable.add(pauseButton).width(150).padBottom(20).row();
 
         timeLabel = new Label("Zegar: Poniedzialek 00:00", skin);
         timeLabel.setColor(Color.YELLOW);
-        table.add(timeLabel).padBottom(15).row();
+        leftTable.add(timeLabel).padBottom(15).row();
 
         consumersLabel = new Label("Konsumenci: 0", skin);
-        table.add(consumersLabel).padBottom(3).row();
+        leftTable.add(consumersLabel).padBottom(3).row();
 
         collectorsLabel = new Label("Kolektorzy: 0", skin);
-        table.add(collectorsLabel).padBottom(3).row();
+        leftTable.add(collectorsLabel).padBottom(3).row();
 
         bottleMachinesLabel = new Label("Butelkomaty: 0", skin);
-        table.add(bottleMachinesLabel).padBottom(3).row();
+        leftTable.add(bottleMachinesLabel).padBottom(3).row();
 
         trashBinsLabel = new Label("Smietniky: 0", skin);
-        table.add(trashBinsLabel).padBottom(3).row();
+        leftTable.add(trashBinsLabel).padBottom(3).row();
 
         wholeBottlesLabel = new Label("Butelki: 0", skin);
-        table.add(wholeBottlesLabel).padBottom(3).row();
+        leftTable.add(wholeBottlesLabel).padBottom(3).row();
 
         consumerBottlesLabel = new Label("Butelki: 0", skin);
-        table.add(consumerBottlesLabel).padBottom(3).row();
+        leftTable.add(consumerBottlesLabel).padBottom(3).row();
 
         collectorBottlesLabel = new Label("Butelki: 0", skin);
-        table.add(collectorBottlesLabel).padBottom(3).row();
+        leftTable.add(collectorBottlesLabel).padBottom(3).row();
 
         bottleMachinesBottleLabel = new Label("Butelki: 0", skin);
-        table.add(bottleMachinesBottleLabel).padBottom(3).row();
+        leftTable.add(bottleMachinesBottleLabel).padBottom(3).row();
 
         trashBinsBottleLabel = new Label("Butelki: 0", skin);
-        table.add(trashBinsBottleLabel).padBottom(3).row();
+        leftTable.add(trashBinsBottleLabel).padBottom(3).row();
 
         litterLevel = new Label("Butelki: 0", skin);
-        table.add(litterLevel).padBottom(3).row();
+        leftTable.add(litterLevel).padBottom(3).row();
 
-        stage.addActor(table);
-
-        final Table logsTable = new Table();
-        logsTable.setFillParent(true);
-        logsTable.top().right().pad(10);
-        logsTable.setVisible(false);
+        // prawa sekcja (logi)
+        Table rightTable = new Table();
+        rightTable.top().right();
 
         Label logsTitle = new Label("Logi symulacji:", skin);
-        logsTable.add(logsTitle).padBottom(5).row();
+        rightTable.add(logsTitle).padBottom(5).row();
 
         logsTextArea = new TextArea("", skin);
         logsTextArea.setDisabled(true);
-        logsTextArea.setSize(350, 150);
 
         logsScrollPane = new ScrollPane(logsTextArea, skin);
-        logsScrollPane.setSize(350, 150);
-        logsTable.add(logsScrollPane).width(350).height(150).row();
+        rightTable.add(logsScrollPane).width(350).height(130).row();
 
-        stage.addActor(logsTable);
+        // dodanie lewej i prawej sekcji wyrównanie (left/right)
+        rootTable.add(leftTable).expandX().left().top();
+        rootTable.add(rightTable).right().top();
+
+        stage.addActor(rootTable);
 
         final TextField collectorsField = new TextField("50", skin);
         final TextField consumersField = new TextField("50", skin);
@@ -270,7 +276,6 @@ public class SimulationGame extends ApplicationAdapter {
         Dialog setupDialog = new Dialog("Konfiguracja poczatkowa", skin) {
             @Override
             protected void result(Object object) {
-
                 try {
                     countCollectors = Integer.parseInt(collectorsField.getText());
                     countConsumers = Integer.parseInt(consumersField.getText());
@@ -286,8 +291,7 @@ public class SimulationGame extends ApplicationAdapter {
                 addTrashBins(countBins, worldMap);
 
                 simulationStarted = true;
-                table.setVisible(true);
-                logsTable.setVisible(true);
+                rootTable.setVisible(true); // pokaże interfejs po zamknięciu dialogu
             }
         };
 
@@ -311,11 +315,13 @@ public class SimulationGame extends ApplicationAdapter {
 
     @Override
     public void render() {
-        // tu poszła podmianka i silnik się aktualizuje jeżeli symulacia poszła, ale się nie skończyła
         if (simulationStarted && !simulationEnded) {
             engine.update(Gdx.graphics.getDeltaTime());
-            checkSimulationEndConditions(); // sprawdzanie warunków końcowych w każdej klatce
+            checkSimulationEndConditions();
         }
+
+        // aktualizacja kamery, żeby zawsze dopasowywała się do ekranu bez wyciągania mapy
+        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.update();
 
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
@@ -323,14 +329,32 @@ public class SimulationGame extends ApplicationAdapter {
 
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
+        spriteBatch.setColor(1, 1, 1, 1);
 
         WorldMap map = engine.getMap();
         int h = map.getHeight();
+        int w = map.getWidth();
+
+        // obliczanie skali i pozycji tak, żeby mapa mieściła się w DOLNEJ DOLNEJ DOLNEJ części okna :>
+        int screenW = Gdx.graphics.getWidth();
+        int screenH = Gdx.graphics.getHeight();
+        int availableHeight = screenH - GUI_HEIGHT; // odliczamy miejsce na GUI
+
+        float scaleX = (float) screenW / (w * TILE_SIZE);
+        float scaleY = (float) availableHeight / (h * TILE_SIZE);
+        mapScale = Math.min(scaleX, scaleY);
+
+        float totalMapWidth = w * TILE_SIZE * mapScale;
+        float totalMapHeight = h * TILE_SIZE * mapScale;
+
+        // centrowanie mapy na środku poziomo i w dostępnej przestrzeni pionowo
+        float offsetX = (screenW - totalMapWidth) / 2;
+        float offsetY = (availableHeight - totalMapHeight) / 2;
 
         for (int y = 0; y < h; y++) {
-            for (int x = 0; x < map.getWidth(); x++) {
-                float rx = x * TILE_SIZE;
-                float ry = (h - 1 - y) * TILE_SIZE;
+            for (int x = 0; x < w; x++) {
+                float rx = offsetX + x * TILE_SIZE * mapScale;
+                float ry = offsetY + (h - 1 - y) * TILE_SIZE * mapScale;
                 WorldMap.TileType tile = map.getTileType(x, y);
 
                 Texture tileTexture = textureWall;
@@ -339,16 +363,20 @@ public class SimulationGame extends ApplicationAdapter {
                     else if (tile == WorldMap.TileType.GRASS) tileTexture = textureGrass;
                     else if (tile == WorldMap.TileType.PATH) tileTexture = texturePath;
                 }
-                spriteBatch.draw(tileTexture, rx, ry, TILE_SIZE, TILE_SIZE);
+                spriteBatch.draw(tileTexture, rx, ry, TILE_SIZE * mapScale, TILE_SIZE * mapScale);
             }
         }
 
         for (BottleMachine b : map.getBottleMachines()) {
-            spriteBatch.draw(textureBottle, b.getPosition().getX() * TILE_SIZE, (h - 1 - b.getPosition().getY()) * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            float rx = offsetX + b.getPosition().getX() * TILE_SIZE * mapScale;
+            float ry = offsetY + (h - 1 - b.getPosition().getY()) * TILE_SIZE * mapScale;
+            spriteBatch.draw(textureBottle, rx, ry, TILE_SIZE * mapScale, TILE_SIZE * mapScale);
         }
 
         for (TrashBin t : map.getTrashBins()) {
-            spriteBatch.draw(textureTrash, t.getPosition().getX() * TILE_SIZE, (h - 1 - t.getPosition().getY()) * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            float rx = offsetX + t.getPosition().getX() * TILE_SIZE * mapScale;
+            float ry = offsetY + (h - 1 - t.getPosition().getY()) * TILE_SIZE * mapScale;
+            spriteBatch.draw(textureTrash, rx, ry, TILE_SIZE * mapScale, TILE_SIZE * mapScale);
         }
 
         for (Agent a : map.getAgents()) {
@@ -358,7 +386,9 @@ public class SimulationGame extends ApplicationAdapter {
             } else {
                 tex = textureCollector;
             }
-            spriteBatch.draw(tex, a.getPosition().getX() * TILE_SIZE, (h - 1 - a.getPosition().getY()) * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            float rx = offsetX + a.getPosition().getX() * TILE_SIZE * mapScale;
+            float ry = offsetY + (h - 1 - a.getPosition().getY()) * TILE_SIZE * mapScale;
+            spriteBatch.draw(tex, rx, ry, TILE_SIZE * mapScale, TILE_SIZE * mapScale);
         }
 
         spriteBatch.end();
@@ -372,14 +402,10 @@ public class SimulationGame extends ApplicationAdapter {
         stage.draw();
     }
 
-    /**
-     * to weryfikuje kryteria zakończenia symulacji
-     */
     private void checkSimulationEndConditions() {
         String reason;
         WorldMap map = engine.getMap();
 
-        // zliczanie butelek w infrastrukturze pod kątem awarii
         int machineBottles = 0;
         int trashBinBottles = 0;
         int brokenMachines = 0;
@@ -403,22 +429,19 @@ public class SimulationGame extends ApplicationAdapter {
         int maxMachineCapacity = map.everyBottleMachineCapacity();
         int maxTrashCapacity = map.everyTrashBinCapacity();
 
-        // WARUNEK AWARII: jeśli istnieje i zapełniona
         if (maxMachineCapacity > 0 && maxTrashCapacity > 0 && machineBottles >= maxMachineCapacity && trashBinBottles >= maxTrashCapacity) {
             reason = "Wszystkie butelkomaty i śmietniki są zapełnione!";
             endSimulation(false, reason);
             return;
         }
 
-        // śledzenie dni do pozytywnego endingu
         String timeStr = engine.getTimeManager().getFormattedTime();
         if (timeStr != null && !timeStr.isEmpty()) {
-            // wyciągnięcie członu
             String currentDay = timeStr.split(" ")[0];
 
             if (!currentDay.equals(lastDay)) {
                 if (!lastDay.isEmpty()) {
-                    daysElapsed++; // zliczenie przejścia na kolejny dzień
+                    daysElapsed++;
                 }
                 lastDay = currentDay;
             }
@@ -430,16 +453,12 @@ public class SimulationGame extends ApplicationAdapter {
             return;
         }
 
-        // WARUNEK SUKCESU (7 dni bez awarii)
         if (daysElapsed >= 7) {
             reason = "SUKCES! Tydzień bezproblemowej pracy infrastruktury";
             endSimulation(true, reason);
         }
     }
 
-    /**
-     * zakończenie symulacji i wyświetlenie okna podsumowania
-     */
     private void endSimulation(boolean success, String reason) {
         simulationEnded = true;
 
@@ -449,7 +468,6 @@ public class SimulationGame extends ApplicationAdapter {
             totalBottles += element.getBottlesAmount();
         }
 
-        // okno dialogowe z zakończeniem
         Dialog summaryDialog = new Dialog("Koniec Symulacji", skin);
         Table content = summaryDialog.getContentTable();
         content.pad(25);
@@ -466,7 +484,6 @@ public class SimulationGame extends ApplicationAdapter {
             LoggerService.getInstance().log("=== SYMULACJA PRZERWANA - AWARIA SYSTEMU ===");
         }
 
-        // dane statystyczne do podsumowania
         content.add(new Label("Czas zakonczenia: " + engine.getTimeManager().getFormattedTime(), skin)).left().padBottom(5).row();
         content.add(new Label("Liczba aktywnych agentow: " + map.getAgents().size(), skin)).left().padBottom(5).row();
         content.add(new Label("Butelkomaty: " + map.getBottleMachines().size(), skin)).left().padBottom(5).row();
@@ -475,7 +492,6 @@ public class SimulationGame extends ApplicationAdapter {
 
         summaryDialog.button("Zamknij program", true);
 
-        // zamknięcie apki
         summaryDialog.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {

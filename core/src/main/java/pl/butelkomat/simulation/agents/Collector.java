@@ -80,7 +80,11 @@ public class Collector extends Agent {
                             visitedTargets.add(currentTarget);
                         } else if (interactable instanceof BottleMachine machine && isFull) {
                             int accepted = machine.processDeposit(this);
-                            LoggerService.getInstance().log("Collector-" + id + " oddal " + accepted + " butelek do butelkomatu.");
+                            if(accepted > 0){
+                                LoggerService.getInstance().log("Collector-" + id + " oddal " + accepted + " butelek do butelkomatu.");
+                            }else{
+                                LoggerService.getInstance().log("Collector-" + id + " nie udalo sie oddac butelek do butelkomatu.");
+                            }
 
                             if (!bottles.isEmpty()) {
                                 LoggerService.getInstance().log("Collector-" + id + ": nie oddano wszystkiego, pozostalo " + bottles.size() + "/20 butelek");

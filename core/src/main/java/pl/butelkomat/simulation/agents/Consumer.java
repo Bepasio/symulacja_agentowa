@@ -16,6 +16,7 @@ import pl.butelkomat.simulation.world.Zone;
 
 public class Consumer extends Agent {
     private static int consumerIdCounter = 1;
+    private int frustrationLevel = 0;
 
     public Consumer(Position startPosition) {
         super(startPosition, 2, consumerIdCounter++);
@@ -94,8 +95,19 @@ public class Consumer extends Agent {
                         interacted = true;
                     }else if(targetElement instanceof BottleMachine machine){
                         int accepted = machine.processDeposit(this);
-                        LoggerService.getInstance().log("Consumer" + id + " oddal " + accepted + " butelek do butelkomatu. W plecaku zostalo: " + bottles.size());
-                        interacted = true;
+                        if(accepted > 0){
+                            LoggerService.getInstance().log("Consumer-" + id + " oddal " + accepted + " butelek do butelkomatu.");
+                            frustrationLevel = 0;
+                        }else{
+                            LoggerService.getInstance().log("Consumer-" + id + " nie udalo sie oddac butelek do butelkomatu.");
+                            frustrationLevel++;
+                            if(frustrationLevel == 3){
+                                map.addLitter(bottles.size());
+                                bottles.clear();
+                                LoggerService.getInstance().log("Consumer-" + id + " wyrzucil butelki w krzaki z frustracji.");
+                                frustrationLevel = 0;
+                            }
+                        }
                     }
 
                         if (interacted && !bottles.isEmpty()) {

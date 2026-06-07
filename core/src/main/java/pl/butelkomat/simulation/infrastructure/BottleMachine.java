@@ -4,6 +4,7 @@ import pl.butelkomat.simulation.agents.Agent;
 import pl.butelkomat.simulation.agents.Consumer;
 import pl.butelkomat.simulation.item.Bottle;
 import pl.butelkomat.simulation.utils.LoggerService;
+import pl.butelkomat.simulation.world.ElementType;
 import pl.butelkomat.simulation.world.MapElement;
 import pl.butelkomat.simulation.world.Position;
 
@@ -85,6 +86,10 @@ public class BottleMachine implements MapElement, Interactable {
     public void repair(){
         isBroken = false;
         stressLevel = 0;
+    }
+
+    public ElementType getElementType() {
+        return ElementType.BOTTLE_MACHINE;
     }
 
     public boolean isBroken() {

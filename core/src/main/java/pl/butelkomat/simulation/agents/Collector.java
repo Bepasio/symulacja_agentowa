@@ -5,6 +5,7 @@ import pl.butelkomat.simulation.infrastructure.Interactable;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
 import pl.butelkomat.simulation.item.Bottle;
 import pl.butelkomat.simulation.utils.LoggerService;
+import pl.butelkomat.simulation.world.ElementType;
 import pl.butelkomat.simulation.world.MapElement;
 import pl.butelkomat.simulation.world.Position;
 import pl.butelkomat.simulation.world.WorldMap;
@@ -99,5 +100,9 @@ public class Collector extends Agent {
                 }
             }
         }
+    }
+
+    public ElementType getElementType() {
+        return ElementType.COLLECTOR;
     }
 }

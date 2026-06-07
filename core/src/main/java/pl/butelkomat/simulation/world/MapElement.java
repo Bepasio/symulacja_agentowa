@@ -4,4 +4,5 @@ public interface MapElement {
     Position getPosition();
     int getBottlesAmount();
     int getCapacity();
+    ElementType getElementType();
 }

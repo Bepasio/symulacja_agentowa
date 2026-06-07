@@ -1,6 +1,7 @@
 package pl.butelkomat.simulation.infrastructure;
 
 import pl.butelkomat.simulation.item.Bottle;
+import pl.butelkomat.simulation.world.ElementType;
 import pl.butelkomat.simulation.world.MapElement;
 import pl.butelkomat.simulation.world.Position;
 
@@ -53,5 +54,9 @@ public class TrashBin implements MapElement, Interactable {
 
     public Position getPosition(){
         return position;
+    }
+
+    public ElementType getElementType() {
+        return ElementType.TRASH_BIN;
     }
 }

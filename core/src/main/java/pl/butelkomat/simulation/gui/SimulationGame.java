@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -44,6 +46,7 @@ public class SimulationGame extends ApplicationAdapter {
     private SimulationEngine engine;
     private ShapeRenderer shapeRenderer;
     private SpriteBatch spriteBatch;
+    private BitmapFont font; // pole przechowujące czcionkę ---
     private OrthographicCamera camera;
     private final int TILE_SIZE = 16;
     private float mapScale = 1.0f;  // skala mapy
@@ -152,6 +155,11 @@ public class SimulationGame extends ApplicationAdapter {
 
         spriteBatch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
+
+        // inicjalizacja czcionki do napisów nad agentami
+        font = new BitmapFont();
+        font.setColor(Color.YELLOW);
+        font.getData().setScale(1.2f);
 
         textureWater = new Texture(Gdx.files.internal("textures/water.png"));
         textureGrass = new Texture(Gdx.files.internal("textures/grass.png"));
@@ -327,6 +335,10 @@ public class SimulationGame extends ApplicationAdapter {
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        // pobranie pozycji myszy i przeliczenie jej przez kamerę
+        Vector3 mousePos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+        camera.unproject(mousePos);
+
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
         spriteBatch.setColor(1, 1, 1, 1);
@@ -386,9 +398,19 @@ public class SimulationGame extends ApplicationAdapter {
             } else {
                 tex = textureCollector;
             }
-            float rx = offsetX + a.getPosition().getX() * TILE_SIZE * mapScale;
-            float ry = offsetY + (h - 1 - a.getPosition().getY()) * TILE_SIZE * mapScale;
-            spriteBatch.draw(tex, rx, ry, TILE_SIZE * mapScale, TILE_SIZE * mapScale);
+            float size = TILE_SIZE * mapScale;
+            float rx = offsetX + a.getPosition().getX() * size;
+            float ry = offsetY + (h - 1 - a.getPosition().getY()) * size;
+            spriteBatch.draw(tex, rx, ry, size, size);
+
+            // sprawdzanie czy myszka znajduje się nad agentem (hover)
+            if (mousePos.x >= rx && mousePos.x <= rx + size &&
+                    mousePos.y >= ry && mousePos.y <= ry + size) {
+
+                String hoverText = "Butelki: " + a.getBottlesAmount();
+                // napis nad głową agenta
+                font.draw(spriteBatch, hoverText, rx - 10, ry + size + 20);
+            }
         }
 
         spriteBatch.end();
@@ -543,7 +565,7 @@ public class SimulationGame extends ApplicationAdapter {
         consumerBottlesLabel.setText("Wszystkie butelki consumerow: " + consumerBottles);
 
         wholeBottlesLabel.setText("Wszystkie butelki w obiegu: " + totalBottles + "/" + map.getMaxBottleAmount());
-        bottleMachinesBottleLabel.setText("Wszystkie butelki w butelkomatach: " + machineBottles + "/" + map.everyBottleMachineCapacity());
+        bottleMachinesBottleLabel.setText("Wszystkie butelki in butelkomatach: " + machineBottles + "/" + map.everyBottleMachineCapacity());
         trashBinsBottleLabel.setText("Wszystkie butelki w smietnikach: " + trashBinBottles + "/" + map.everyTrashBinCapacity());
         litterLevel.setText("Butelki smieci: " + map.getLitterLevel() + "% pojemności infrastruktury.");
     }
@@ -569,6 +591,11 @@ public class SimulationGame extends ApplicationAdapter {
         spriteBatch.dispose();
         stage.dispose();
         skin.dispose();
+
+        // zwolnienie pamięci zajmowanej przez czcionkę
+        if (font != null) {
+            font.dispose();
+        }
 
         textureWater.dispose();
         textureGrass.dispose();

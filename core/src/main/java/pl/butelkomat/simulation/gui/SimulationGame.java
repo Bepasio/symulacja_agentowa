@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont; // import dla czcionki
-import com.badlogic.gdx.math.Vector3;           // import dla wektora pozycji myszy
+import com.badlogic.gdx.math.Vector3;           // import dla pozycji myszy
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -46,7 +46,7 @@ public class SimulationGame extends ApplicationAdapter {
     private SimulationEngine engine;
     private ShapeRenderer shapeRenderer;
     private SpriteBatch spriteBatch;
-    private BitmapFont font; // pole przechowujące czcionkę ---
+    private BitmapFont font; // pole przechowujące czcionkę hovera
     private OrthographicCamera camera;
     private final int TILE_SIZE = 16;
     private float mapScale = 1.0f;  // skala mapy
@@ -156,7 +156,7 @@ public class SimulationGame extends ApplicationAdapter {
         spriteBatch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
 
-        // inicjalizacja czcionki do napisów nad agentami
+        // przygotowanie czcionki dla tooltipów
         font = new BitmapFont();
         font.setColor(Color.YELLOW);
         font.getData().setScale(1.2f);
@@ -335,7 +335,7 @@ public class SimulationGame extends ApplicationAdapter {
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // pobranie pozycji myszy i przeliczenie jej przez kamerę ---
+        // przechwycenie i konwersja układu współrzędnych myszki
         Vector3 mousePos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
         camera.unproject(mousePos);
 
@@ -379,37 +379,24 @@ public class SimulationGame extends ApplicationAdapter {
             }
         }
 
-        for (BottleMachine b : map.getBottleMachines()) {
-            float rx = offsetX + b.getPosition().getX() * TILE_SIZE * mapScale;
-            float ry = offsetY + (h - 1 - b.getPosition().getY()) * TILE_SIZE * mapScale;
-            spriteBatch.draw(textureBottle, rx, ry, TILE_SIZE * mapScale, TILE_SIZE * mapScale);
-        }
+        for(MapElement e : map.getElements()) {
+            Texture tex = getTextureForElement(e.getElementType());
 
-        for (TrashBin t : map.getTrashBins()) {
-            float rx = offsetX + t.getPosition().getX() * TILE_SIZE * mapScale;
-            float ry = offsetY + (h - 1 - t.getPosition().getY()) * TILE_SIZE * mapScale;
-            spriteBatch.draw(textureTrash, rx, ry, TILE_SIZE * mapScale, TILE_SIZE * mapScale);
-        }
-
-        for (Agent a : map.getAgents()) {
-            Texture tex;
-            if (a instanceof Consumer) {
-                tex = textureConsumer;
-            } else {
-                tex = textureCollector;
-            }
             float size = TILE_SIZE * mapScale;
-            float rx = offsetX + a.getPosition().getX() * size;
-            float ry = offsetY + (h - 1 - a.getPosition().getY()) * size;
+            float rx = offsetX + e.getPosition().getX() * size;
+            float ry = offsetY + (h - 1 - e.getPosition().getY()) * size;
+
             spriteBatch.draw(tex, rx, ry, size, size);
 
-            // sprawdzanie czy myszka znajduje się nad agentem (hover)
-            if (mousePos.x >= rx && mousePos.x <= rx + size &&
-                    mousePos.y >= ry && mousePos.y <= ry + size) {
+            // sprawdzanie czy element jest agentem i czy myszka nad nim hoveruje
+            if (e instanceof Agent) {
+                if (mousePos.x >= rx && mousePos.x <= rx + size &&
+                        mousePos.y >= ry && mousePos.y <= ry + size) {
 
-                String hoverText = "Butelki: " + a.getBottlesAmount();
-                // napis nad głową agenta
-                font.draw(spriteBatch, hoverText, rx - 10, ry + size + 20);
+                    String hoverText = "Butelki: " + e.getBottlesAmount();
+                    // tekst nad głową agenta
+                    font.draw(spriteBatch, hoverText, rx - 10, ry + size + 20);
+                }
             }
         }
 
@@ -565,7 +552,7 @@ public class SimulationGame extends ApplicationAdapter {
         consumerBottlesLabel.setText("Wszystkie butelki consumerow: " + consumerBottles);
 
         wholeBottlesLabel.setText("Wszystkie butelki w obiegu: " + totalBottles + "/" + map.getMaxBottleAmount());
-        bottleMachinesBottleLabel.setText("Wszystkie butelki in butelkomatach: " + machineBottles + "/" + map.everyBottleMachineCapacity());
+        bottleMachinesBottleLabel.setText("Wszystkie butelki w butelkomatach: " + machineBottles + "/" + map.everyBottleMachineCapacity());
         trashBinsBottleLabel.setText("Wszystkie butelki w smietnikach: " + trashBinBottles + "/" + map.everyTrashBinCapacity());
         litterLevel.setText("Butelki smieci: " + map.getLitterLevel() + "% pojemności infrastruktury.");
     }
@@ -592,7 +579,7 @@ public class SimulationGame extends ApplicationAdapter {
         stage.dispose();
         skin.dispose();
 
-        // zwolnienie pamięci zajmowanej przez czcionkę
+        // bezpieczne czyszczenie zasobów czcionki
         if (font != null) {
             font.dispose();
         }
@@ -641,6 +628,16 @@ public class SimulationGame extends ApplicationAdapter {
         for(int i = 0; i < value; i++){
             Position bottleMachinePos = worldMap.getRandomPosition();
             worldMap.addElement(new BottleMachine(bottleMachinePos));
+        }
+    }
+
+    private Texture getTextureForElement(ElementType type){
+        switch (type){
+            case BOTTLE_MACHINE: return textureBottle;
+            case TRASH_BIN:      return textureTrash;
+            case CONSUMER:       return textureConsumer;
+            case COLLECTOR:      return textureCollector;
+            default: return textureWater;
         }
     }
 

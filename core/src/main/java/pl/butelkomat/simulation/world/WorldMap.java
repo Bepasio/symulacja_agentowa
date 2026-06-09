@@ -195,7 +195,7 @@ public class WorldMap {
                 interactables.add(element);
             }
         }
-        return elements;
+        return interactables;
     }
 
 

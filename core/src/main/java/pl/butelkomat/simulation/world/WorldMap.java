@@ -361,6 +361,16 @@ public class WorldMap {
         return Math.round(percentage * 100.0) / 100.0;
     }
 
+    public int brokenMachinesAmount(){
+        int sum = 0;
+
+        for (BottleMachine machine : getBottleMachines()) {
+            if(machine.isBroken()) sum++;
+        }
+
+        return sum;
+    }
+
     public int getWidth() { return width; }
     public int getHeight() { return height; }
     public TileType getTileType(int x, int y) { return terrainGrid[y][x]; }

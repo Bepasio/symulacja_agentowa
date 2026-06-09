@@ -65,11 +65,11 @@ public class BottleMachine implements MapElement, Interactable {
                 bottles.add(bottle);
                 iterator.remove();
                 acceptedBottles++; //jesli jest zwrotna to przyjmuje butelke i ITERATOR usuwa ją z eq agenta
+                stressLevel++; //stress rosnie z kazda oddana butelka
             }
         }
 
         if (acceptedBottles > 0) {
-            stressLevel++; //jesli ktos oddal butelki to rosnie stress
             paperStock--;
             double payout = acceptedBottles * bottlePrice;
             agent.addMoney(payout); //agent dostaje kase za kaucje

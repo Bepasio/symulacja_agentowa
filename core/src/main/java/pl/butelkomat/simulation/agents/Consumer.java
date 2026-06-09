@@ -54,9 +54,20 @@ public class Consumer extends Agent {
                 }
             }
 
-            if(currentTarget == null){
-                if(!bottles.isEmpty()){ //jesli nie ma celu i ma jakies butelki, to szukamy najblizsza infrastrukture
-                    Position target = map.nearestInteractable(position, visitedTargets);
+            if(currentTarget == null) {
+                if(!bottles.isEmpty()) {
+                    Position target = null;
+
+                    if(hasRefundableBottle()){ //jesli ma jakas zwrotna butelke
+                        target = map.nearestBottleMachine(position, visitedTargets); //szukamy najblizszego butelkomatu
+
+                        if(target == null) { //jestli jest null, bo kazdy byl na czarnej liscie to wyznaczamy smietnik
+                            target = map.nearestTrashBin(position, visitedTargets);
+                        }
+                    }else{
+                        target = map.nearestTrashBin(position, visitedTargets); //jesli nie ma zwrotnych butelek to wyznaczamy smietnik
+                    }
+
                     if(target == null){ //jesli nie udalo sie nic wyznaczyc, tocczyscimy czarna liste i idziemy gdziekolwiek
                         LoggerService.getInstance().log("Consumer" + id + ": wszytko pelne/odrzucone. Nie udalo sie wyznaczyc celu");
                         visitedTargets.clear();
@@ -68,6 +79,7 @@ public class Consumer extends Agent {
                     currentTarget = map.getRandomPosition();
                 }
             }
+
 
             if (currentTarget != null) {
                 moveTowards(currentTarget, map); //jesli mamy cel to do niego idziemy

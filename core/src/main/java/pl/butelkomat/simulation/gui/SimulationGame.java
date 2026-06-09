@@ -77,6 +77,8 @@ public class SimulationGame extends ApplicationAdapter {
     private Label trashBinsLabel;
     private Label litterLevel;
 
+    private Label brokenMachinesLabel;
+
     // Logi
     private TextArea logsTextArea;
     private ScrollPane logsScrollPane;
@@ -256,6 +258,9 @@ public class SimulationGame extends ApplicationAdapter {
 
         litterLevel = new Label("Butelki: 0", skin);
         leftTable.add(litterLevel).padBottom(3).row();
+
+        brokenMachinesLabel = new Label("Butelki: 0", skin);
+        leftTable.add(brokenMachinesLabel).padBottom(3).row();
 
         // prawa sekcja (logi)
         Table rightTable = new Table();
@@ -555,6 +560,8 @@ public class SimulationGame extends ApplicationAdapter {
         bottleMachinesBottleLabel.setText("Wszystkie butelki w butelkomatach: " + machineBottles + "/" + map.everyBottleMachineCapacity());
         trashBinsBottleLabel.setText("Wszystkie butelki w smietnikach: " + trashBinBottles + "/" + map.everyTrashBinCapacity());
         litterLevel.setText("Butelki smieci: " + map.getLitterLevel() + "% pojemności infrastruktury.");
+
+        brokenMachinesLabel.setText("Zepsute butelkomaty: " + map.brokenMachinesAmount());
     }
 
     private void updateLogs() {

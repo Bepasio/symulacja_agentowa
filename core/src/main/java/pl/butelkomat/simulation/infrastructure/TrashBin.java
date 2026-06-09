@@ -13,7 +13,7 @@ public class TrashBin implements MapElement, Interactable {
     private Position position;
 
     public TrashBin(Position position) {
-        this.bottles = new Stack<>();
+        this.bottles = new Stack<>(); //wykorzystujemy stack, zeby collector wyciagajacy zbieral jak z kosza, czyli pierwsze butleki z brzegu
         this.position = position;
     }
 

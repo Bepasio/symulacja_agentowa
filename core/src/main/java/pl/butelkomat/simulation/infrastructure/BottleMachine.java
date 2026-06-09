@@ -45,7 +45,7 @@ public class BottleMachine implements MapElement, Interactable {
             return 0;
         }
 
-        double breakChance = stressLevel * 0.0005;
+        double breakChance = stressLevel * 0.0005; //szansa na awarie zalezy od stress level, ktory rosnie przy kazdym skorzystaniu z niego
         if(Math.random() < breakChance) {
             isBroken = true;
             LoggerService.getInstance().logError("AWARIA! Butelkomat na " + position.getX() + "," + position.getY() + " zaciął się z przeciążenia!");
@@ -56,7 +56,7 @@ public class BottleMachine implements MapElement, Interactable {
         Iterator<Bottle> iterator = agent.getBottles().iterator();
 
         while (iterator.hasNext()) {
-            if (bottles.size() >= capacity) {
+            if (bottles.size() >= capacity) { //jesli butelkomat jest pelny to nie przyjmuje butelek
                 break;
             }
 
@@ -64,15 +64,15 @@ public class BottleMachine implements MapElement, Interactable {
             if (bottle.isRefundable()) {
                 bottles.add(bottle);
                 iterator.remove();
-                acceptedBottles++;
-                stressLevel++;
+                acceptedBottles++; //jesli jest zwrotna to przyjmuje butelke i ITERATOR usuwa ją z eq agenta
             }
         }
 
         if (acceptedBottles > 0) {
+            stressLevel++; //jesli ktos oddal butelki to rosnie stress
             paperStock--;
             double payout = acceptedBottles * bottlePrice;
-            agent.addMoney(payout);
+            agent.addMoney(payout); //agent dostaje kase za kaucje
             if(agent instanceof Consumer) {
                 LoggerService.getInstance().log("Consumer-" + agent.getID() + " zarobił " + payout + " zł");
             }else{

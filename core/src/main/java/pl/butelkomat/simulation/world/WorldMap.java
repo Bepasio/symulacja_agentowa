@@ -211,11 +211,11 @@ public class WorldMap {
         return true;
     }
 
-    private class Node implements Comparable<Node> {
-        Position pos;
-        Node parent;
-        int gCost;
-        int hCost;
+    private class Node implements Comparable<Node> { //wierzcholek grafu
+        Position pos; //pozycja gdzie się znajduje
+        Node parent; //wierzcholek 'z ktorego idziemy', z ktorego zlicza się koszt podróży gCost
+        int gCost; //aktualny koszt podrozy, zwieksza sie z kazdym krokiem od startu
+        int hCost; //przewidywany koszt (odleglosc) podrozy, zmniejsza sie z kazdym krokiem ku celu
 
         Node(Position pos, Node parent, int gCost, int hCost){
             this.pos = pos;
@@ -226,83 +226,86 @@ public class WorldMap {
 
         public int getFCost() {
             return gCost + hCost;
-        }
+        } //rzeczywisty koszt podróży, mniej = lepiej, to co przeszlismy + to co zostalo do przejscia
 
         public int compareTo(Node o) {
-            int compare = Integer.compare(this.getFCost(), o.getFCost());
+            int compare = Integer.compare(this.getFCost(), o.getFCost()); //porownujemy je na podstawie kosztu rzeczywistego
             if (compare == 0){
-                compare = Integer.compare(this.hCost, o.hCost);
+                compare = Integer.compare(this.hCost, o.hCost); //jesli kozt jest taki sam to wybieramy na podstawie odleglosci do celu
             }
             return compare;
         }
     }
 
     public List<Position> pathFinder(Position start, Position target){
-        PriorityQueue<Node> openSet = new PriorityQueue<>();
-        ArrayList<Position> closedSet = new ArrayList<>();
+        PriorityQueue<Node> openSet = new PriorityQueue<>(); //wierzcholki ktore widzimy/przeszukujemy (mozliwie 8 wierzcholkow dookola nas) i bedziemy oceniac
+        ArrayList<Position> closedSet = new ArrayList<>(); //wierzcholki na ktorych juz bylismy
 
-        openSet.add(new Node(start, null, 0, calculateDistance(start, target)));
+        openSet.add(new Node(start, null, 0, calculateDistance(start, target))); //punkt startowy, koszt zaczyna sie od 0
 
         int[] dx = {1, -1, 0, 0, 1, 1, -1, -1};
-        int[] dy = {0, 0, 1, -1, 1, -1, 1, -1};
+        int[] dy = {0, 0, 1, -1, 1, -1, 1, -1}; //mozliwe kierunki, przod tyl lewo prawo i skosy
 
         Node targetNode = null;
 
-        while (!openSet.isEmpty()){
-            Node currentNode =  openSet.poll();
-            closedSet.add(currentNode.pos);
+        while (!openSet.isEmpty()){ //glowna petla
+            Node currentNode =  openSet.poll(); //wyciagamy wezel z najmniejszym fCost (bo szukamy najkrotszej sciezki)
+            closedSet.add(currentNode.pos); //oznaczamy go jako odwiedzony
 
             if(currentNode.pos.equals(target)){
                 targetNode = currentNode;
-                break;
+                break; //jelsi jestesmy u celu to konczymy szukanie
             }
 
-            for(int i = 0; i < 8; i++){
+            for(int i = 0; i < 8; i++){ //sprawdzamy 8 mozliwych sasiadujacych wierzkoclkow
                 int nx = currentNode.pos.getX() + dx[i];
                 int ny = currentNode.pos.getY() + dy[i];
                 Position neighborPos = new Position(nx, ny);
 
-                if(!isWalkable(nx, ny) && !neighborPos.equals(target)) continue;
-                if(closedSet.contains(neighborPos)) continue;
+                if(!isWalkable(nx, ny) && !neighborPos.equals(target)) continue; //pomijamy jeśli nie można na niego wejść i nie jest to nasz cel
+                if(closedSet.contains(neighborPos)) continue; //jesli juz na nim bylismy to pomijamy
 
-                int moveCostToNeighbor = currentNode.gCost + 1;
+                int moveCostToNeighbor = currentNode.gCost + 1; //zwiekszamy koszt podróży do tego wierzchołka (przejscie na kazdy kolejny wierzcholek ma koszt 1)
 
                 boolean inOpenSet = false;
-                for(Node node : openSet){
-                    if(node.pos.equals(neighborPos)){
+                for(Node node : openSet){ //przeszukujemy wierzcholki z openSet
+                    if(node.pos.equals(neighborPos)){ //jesli w openSet jest wierzcholek ktory sprawdzamy
                         inOpenSet = true;
-                        if(moveCostToNeighbor < node.gCost){
+                        if(moveCostToNeighbor < node.gCost){ //yo jesli koszt dojscia do aktualnego wierzcholka aktualna sciezka jest mniejszy niż do tego co mamy w open set
                             node.gCost = moveCostToNeighbor;
-                            node.parent = currentNode;
+                            node.parent = currentNode; //to zmieniamy rodzica (wierzch9olek z ktorego do niego dochodzimy) i koszt tej podróży na ten mniejszy
                         }
                         break;
                     }
                 }
-                if(!inOpenSet){
+                if(!inOpenSet){ //jesli tego sprawdzanego wierzcholka nie bylo w openSet, to go dodajemy
                     int hCost = calculateDistance(neighborPos, target);
                     openSet.add(new Node(neighborPos, currentNode, moveCostToNeighbor, hCost));
+                    //     pozycja gdzie jest (obok)| pozycja z ktorej idziemy
                 }
             }
         }
-        if(targetNode == null) return null;
+        if(targetNode == null) return null; //jesli openSet jest pusty a targetNode nie osiągnięty, to znaczy ze nie ma do niego drogi
 
         List<Position> finalPath = new ArrayList<>();
         Node currentNode = targetNode;
 
-        while(currentNode != null){
+        while(currentNode != null){ //w tej petli odtwarzamy sciezke po rodzicach wierzcholka, to jest jakby historia tej drogi, z ktorego wierzcholka na ktory szlismy, odwtwarza sie od celu do startu
             finalPath.add(currentNode.pos);
             currentNode = currentNode.parent;
         }
 
-        Collections.reverse(finalPath);
+        Collections.reverse(finalPath); //trzeba odwrocic zeby bylo od startu do celu
 
         if(!finalPath.isEmpty()){
-            finalPath.remove(0);
+            finalPath.remove(0); //usuwamy pierwsze pole (start), bo agent na nim już stoi
         };
 
         if(!finalPath.isEmpty()) return finalPath;
         return null;
     }
+
+
     public int getMaxBottleAmount(){
         int sum = 0;
         for (MapElement element : elements) {

@@ -51,7 +51,7 @@ public class Consumer extends Agent {
                     boolean hadRefundableBefore = hasRefundableBottle();
                     boolean isRefundable = Math.random() < 0.5; //50% szans na zwrotną butelke
                     bottles.add(new Bottle(isRefundable));
-                    if(bottles.size() == 1 || (!hadRefundableBefore || isRefundable)) { //jesli ma tylko jedna (pierwsza) butelke lub dostal nowa zwrotna butelke(a wczesniej nie mial)
+                    if(bottles.size() == 1 || (!hadRefundableBefore && isRefundable)) { //jesli ma tylko jedna (pierwsza) butelke lub dostal nowa zwrotna butelke(i wczesniej nie mial)
                         visitedTargets.clear();                                            //to czyscimy czarna liste zeby na pewno mial mozliwosc isc do butelkomatu
                         currentTarget = null; //przerywamy mu tym trase do ppustego miejsca na mapie, pojdzie sobie od razu do infrastruktury
                     }

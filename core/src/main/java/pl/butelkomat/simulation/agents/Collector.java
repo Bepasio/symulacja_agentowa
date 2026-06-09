@@ -30,26 +30,27 @@ public class Collector extends Agent {
 
             if (currentTarget == null) {
                 if (!isFull) {
-                    currentTarget = map.nearestTrashBin(position, visitedTargets);
+                    currentTarget = map.nearestTrashBin(position, visitedTargets); //wyszukujemy najblizszy smietnik
 
                     if (currentTarget == null) {
-                        visitedTargets.clear();
-                        currentTarget = map.getRandomPosition();
+                        visitedTargets.clear(); //czyscimy liste odwiedzonych, jesli kazdy najblizszy byl odwiedzony
+                        currentTarget = map.getRandomPosition(); //nadajemy mu randomowy target zeby nie stal w miejscu
                     }
                 } else {
                     currentTarget = map.nearestBottleMachine(position, visitedTargets);
                     if (currentTarget == null) {
-                        System.out.println("Collector-" + id + ": Wszystkie automaty na czarnej liscie");
+                        visitedTargets.clear();
+                        currentTarget = map.getRandomPosition();
                     }
                 }
             }
 
             if (currentTarget != null) {
-                moveTowards(currentTarget, map);
+                moveTowards(currentTarget, map); // jesli ma target to idziemy do niego
 
                 if (position.equals(currentTarget)) {
                     if (!isFull && map.nearestTrashBin(position, visitedTargets) == null) {
-                        currentTarget = null;
+                        currentTarget = null; //jesli mamy miejsce w plecaku i nie mamy wyznaczonego celu do smietnika, to usuwamy target
                         return;
                     }
 
@@ -57,14 +58,14 @@ public class Collector extends Agent {
                     if (interactable != null) {
                         if (interactable instanceof TrashBin bin) {
                             int collectedCount = 0;
-                            Stack<Bottle> rejectedBottles = new Stack<>();
+                            Stack<Bottle> rejectedBottles = new Stack<>(); //jesli wyciagamy butelki bezzwrotne to odkladmay na bok
 
                             while (bottles.size() < backpackCapacity) {
                                 Bottle bottle = bin.takeBottle();
                                 if (bottle != null) {
                                     if (bottle.isRefundable()) {
-                                        bottles.add(bottle);
-                                        collectedCount++;
+                                        bottles.add(bottle); //bierzemy do plecaka butelkki zwrotne
+                                        collectedCount++; //zliczamy je
                                     } else {
                                         rejectedBottles.push(bottle);
                                     }
@@ -74,29 +75,24 @@ public class Collector extends Agent {
                             }
 
                             while (!rejectedBottles.isEmpty()) {
-                                bin.addBottle(rejectedBottles.pop());
+                                bin.addBottle(rejectedBottles.pop()); //po przeszukaniu smietnika wkladamy do niego spowrotem bezzwrotne butelki
                             }
 
                             LoggerService.getInstance().log("Collector-" + id + " wyciagnal " + collectedCount + " butelek KAUCYJNYCH z kosza. W plecaku:" + bottles.size() + "/20");
-                            visitedTargets.add(currentTarget);
+                            visitedTargets.add(currentTarget); //po przeszukaniu smietnika dodajemy go do listy juz odwiedzonych
                         } else if (interactable instanceof BottleMachine machine && isFull) {
-                            int accepted = machine.processDeposit(this);
-                            if(accepted > 0){
-                                LoggerService.getInstance().log("Collector-" + id + " oddal " + accepted + " butelek do butelkomatu.");
-                            }else{
-                                LoggerService.getInstance().log("Collector-" + id + " nie udalo sie oddac butelek do butelkomatu.");
-                            }
+                            int accepted = machine.processDeposit(this); //processDeposit zwraca liczbe odanych butelek do butelkomatu
+                            LoggerService.getInstance().log("Collector-" + id + " oddal " + accepted + " butelek do butelkomatu.");
 
-                            if (!bottles.isEmpty()) {
+                            if (!bottles.isEmpty()) { //jesli zostaly butelki to dodajemy butelkomat na czarna liste
                                 LoggerService.getInstance().log("Collector-" + id + ": nie oddano wszystkiego, pozostalo " + bottles.size() + "/20 butelek");
                                 visitedTargets.add(currentTarget);
                             } else {
-                                visitedTargets.clear();
+                                visitedTargets.clear(); //jesli wszystko oddalismy to czyscimy czarna liste i szukamy od nowa po mapie
                             }
                         }
                     }
-
-                    currentTarget = null;
+                    currentTarget = null; //po wykonanych czynnosciach target jest null i w nastepnym kroku sprawdzmay znowu co robic
                 }
             }
         }

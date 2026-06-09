@@ -30,11 +30,11 @@ public class Consumer extends Agent {
 
         if (movePhase) {
             if (bottles.size() < backpackCapacity) {
-                double multiplier = 1.0;
+                double multiplier = 1.0; //domyslny mnoznik to 1.0
 
                 for(Zone zone : map.getZones()) {
                     if(zone.isInZone(position)) {
-                        multiplier = zone.getMultiplier();
+                        multiplier = zone.getMultiplier(); //jesli znajdujemy sie w strefie w ktorej mamy wieksze szanse na generowanie butelek, to przyjmujemy jej mnoznik
                         break;
                     }
                 }
@@ -42,26 +42,27 @@ public class Consumer extends Agent {
                 double baseChance = 0.05; //domyslna szansa na wygenerowanie butelki
                 double finalChance = multiplier * baseChance; // szansa na wygenerowanie butelki po uwzglednieniu mnoznika strefy
 
-                if (Math.random() < finalChance) {
-                    if (bottles.isEmpty()) {
+                if (Math.random() < finalChance) { //jesli prawda to generujemy butekle
+                    if (bottles.isEmpty()) { //jesli ma puste ręce to czyscimy czarna liste i target to null - bedziemy szukac znowu gfzie isc
                         visitedTargets.clear();
                         currentTarget = null;
                     }
 
-                    boolean isRefundable = Math.random() < 0.5;
+                    boolean isRefundable = Math.random() < 0.5; //50% szans na zwrotną butelke
                     bottles.add(new Bottle(isRefundable));
                     LoggerService.getInstance().log("Consumer" + id + " wygenerowal butelke isRefundable=" + isRefundable);
                 }
             }
 
             if(currentTarget == null){
-                if(!bottles.isEmpty()){
+                if(!bottles.isEmpty()){ //jesli nie ma celu i ma jakies butelki, to szukamy najblizsza infrastrukture
                     Position target = map.nearestInteractable(position, visitedTargets);
-                    if(target == null){
+                    if(target == null){ //jesli nie udalo sie nic wyznaczyc, tocczyscimy czarna liste i idziemy gdziekolwiek
                         LoggerService.getInstance().log("Consumer" + id + ": wszytko pelne/odrzucone. Nie udalo sie wyznaczyc celu");
                         visitedTargets.clear();
+                        currentTarget = map.getRandomPosition();
                     }else{
-                        currentTarget = target;
+                        currentTarget = target; //jesli wyznaczyl, to sie do niego udajemy
                     }
                 }else{
                     currentTarget = map.getRandomPosition();
@@ -69,49 +70,50 @@ public class Consumer extends Agent {
             }
 
             if (currentTarget != null) {
-                moveTowards(currentTarget, map);
+                moveTowards(currentTarget, map); //jesli mamy cel to do niego idziemy
 
-                boolean interacted = false;
                 if (position.equals(currentTarget)) {
                     Interactable targetElement = map.getInteractableAt(position);
 
-                    if(targetElement instanceof TrashBin bin){
-                        int thrownAway = 0;
+                    if (targetElement != null) {
+                        if (targetElement instanceof TrashBin bin) {
+                            int thrownAway = 0;
 
-                        Iterator<Bottle> iterator = bottles.iterator();
-                        while(iterator.hasNext()){
-                            Bottle b = iterator.next();
-                            if (bin.addBottle(b)) {
-                                iterator.remove();
-                                thrownAway++;
-                            } else {
-                                break;
+                            Iterator<Bottle> iterator = bottles.iterator();
+                            while (iterator.hasNext()) {
+                                Bottle b = iterator.next();
+                                if (bin.addBottle(b)) {
+                                    iterator.remove();
+                                    thrownAway++;
+                                } else {
+                                    break;
+                                }
                             }
-                        }
-                        LoggerService.getInstance().log("Consumer" + id + " wyrzucil " + thrownAway + " butelek do kosza. W plecaku zostalo: " + bottles.size());
-                        interacted = true;
-                    }else if(targetElement instanceof BottleMachine machine){
-                        int accepted = machine.processDeposit(this);
-                        if(accepted > 0){
-                            LoggerService.getInstance().log("Consumer-" + id + " oddal " + accepted + " butelek do butelkomatu.");
-                            frustrationLevel = 0;
-                        }else{
-                            LoggerService.getInstance().log("Consumer-" + id + " nie udalo sie oddac butelek do butelkomatu.");
-                            frustrationLevel++;
-                            if(frustrationLevel == 3){
-                                map.addLitter(bottles.size());
-                                bottles.clear();
-                                LoggerService.getInstance().log("Consumer-" + id + " wyrzucil butelki w krzaki z frustracji.");
+                            LoggerService.getInstance().log("Consumer" + id + " wyrzucil " + thrownAway + " butelek do kosza. W plecaku zostalo: " + bottles.size());
+                        } else if (targetElement instanceof BottleMachine machine) {
+                            int accepted = machine.processDeposit(this);
+                            if (accepted > 0) {
+                                LoggerService.getInstance().log("Consumer-" + id + " oddal " + accepted + " butelek do butelkomatu.");
                                 frustrationLevel = 0;
+                            } else {
+                                LoggerService.getInstance().log("Consumer-" + id + " nie udalo sie oddac butelek do butelkomatu.");
+                                frustrationLevel++; //jesli nie udalo sie oddac butelek, to sie denerwuje
+                                if (frustrationLevel == 3) { //jesli odbije sie od 3 butelkomatow to wyrzuca smieci na ziemie
+                                    map.addLitter(bottles.size());
+                                    bottles.clear();
+                                    LoggerService.getInstance().log("Consumer-" + id + " wyrzucil butelki w krzaki z frustracji.");
+                                    frustrationLevel = 0; //jak juz wyrzui to zerujemy poziom zdenerwowania
+                                }
                             }
                         }
-                    }
 
-                        if (interacted && !bottles.isEmpty()) {
+                        if (!bottles.isEmpty()) { //jesli byla infrastruktura i dalej mamy butelki to dodajemy go na czarna list
                             LoggerService.getInstance().log("Consumer" + id + " Obiekt pelny lub odrzucil butelki! Dodaje go do czarnej listy.");
                             visitedTargets.add(currentTarget);
                         }
-                        currentTarget = null;
+                    }
+
+                    currentTarget = null; //ustawiamy null i szukamy dalej
                 }
             }
         }

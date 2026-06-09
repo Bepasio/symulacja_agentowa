@@ -26,7 +26,7 @@ public class SimulationEngine {
     }
 
     public void update(float deltaTime) {
-        if(isPaused) return;
+        if(isPaused) return; //jesli jest pauza, to nie zliczamy ticków, pomijamy krok pętli
 
         int ticks = timeManager.update(deltaTime);
         for (int i = 0; i < ticks; i++) {
@@ -47,7 +47,7 @@ public class SimulationEngine {
                 }else if(timeManager.getDayOfWeekIndex() != 5){
                 hasBeenEmptied = false;
             }
-            boolean movePhase = timeManager.shouldAgentsMove();
+            boolean movePhase = timeManager.shouldAgentsMove(); //jesli prawda (co 2 tick) to wtedy sie ruszaja
             for (Agent agent : map.getAgents()) {
                  agent.step(movePhase, map);
             }

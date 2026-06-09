@@ -41,16 +41,6 @@ public abstract class Agent implements MapElement {
         this.position = position;
     }
 
-    public Position getTarget(ElementType type, WorldMap map) {
-        if (type == ElementType.BOTTLE_MACHINE) {
-            return map.nearestBottleMachine(position, visitedTargets);
-        }
-        if (type == ElementType.TRASH_BIN) {
-            return map.nearestTrashBin(position, visitedTargets);
-        }
-        return null;
-    }
-
     public void moveTowards(Position target, WorldMap map){
         if (target == null || position.equals(target)) return;
 

@@ -204,7 +204,7 @@ public class WorldMap {
         if (x < 0 || x >= width || y < 0 || y >= height) return false;
 
         // Blokada wejścia do wody i w ściany
-        if (terrainGrid[y][x] == TileType.WATER) {
+        if (terrainGrid[y][x] == TileType.WATER || terrainGrid[y][x] == TileType.OBSTACLE){
             return false;
         }
 
@@ -369,6 +369,12 @@ public class WorldMap {
         }
 
         return sum;
+    }
+
+    public void setTileType(int x, int y, TileType type) {
+        if (x >= 0 && x < width && y >= 0 && y < height) {
+            terrainGrid[y][x] = type;
+        }
     }
 
     public int getWidth() { return width; }

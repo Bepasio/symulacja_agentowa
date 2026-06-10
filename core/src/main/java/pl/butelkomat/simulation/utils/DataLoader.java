@@ -2,13 +2,6 @@ package pl.butelkomat.simulation.utils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import pl.butelkomat.simulation.agents.Agent;
-import pl.butelkomat.simulation.agents.Collector;
-import pl.butelkomat.simulation.agents.Consumer;
-import pl.butelkomat.simulation.infrastructure.BottleMachine;
-import pl.butelkomat.simulation.infrastructure.TrashBin;
-import pl.butelkomat.simulation.world.ElementType;
-import pl.butelkomat.simulation.world.Position;
 import pl.butelkomat.simulation.world.WorldMap;
 import pl.butelkomat.simulation.world.Zone;
 
@@ -55,8 +48,8 @@ public class DataLoader {
                 if (line.trim().isEmpty()) continue;
                 String[] data = line.split(",");
                 worldMap.addZone(new Zone(data[0], Integer.parseInt(data[1]), Integer.parseInt(data[2]),
-                                          Integer.parseInt(data[3]), Integer.parseInt(data[4]),
-                                          Double.parseDouble(data[5])));
+                        Integer.parseInt(data[3]), Integer.parseInt(data[4]),
+                        Double.parseDouble(data[5])));
             }
             reader.close();
             LoggerService.getInstance().log("Załadowano strefy z pliku: " + name);

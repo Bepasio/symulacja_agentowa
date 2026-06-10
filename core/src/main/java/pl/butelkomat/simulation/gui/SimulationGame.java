@@ -102,6 +102,8 @@ public class SimulationGame extends ApplicationAdapter {
     private int countMachines = 50;
     private int countBins = 50;
 
+    //config tekstur
+
     private Texture createTextureFromColor(Color color) {
         Pixmap pixmap = new Pixmap(TILE_SIZE, TILE_SIZE, Pixmap.Format.RGBA8888);
         pixmap.setColor(color);
@@ -225,6 +227,8 @@ public class SimulationGame extends ApplicationAdapter {
         });
         leftTable.add(pauseButton).width(150).padBottom(20).row();
 
+
+        //labele w sekcji
         timeLabel = new Label("Zegar: Poniedzialek 00:00", skin);
         timeLabel.setColor(Color.YELLOW);
         leftTable.add(timeLabel).padBottom(15).row();
@@ -308,6 +312,7 @@ public class SimulationGame extends ApplicationAdapter {
             }
         };
 
+        //setup symulacji
         Table dialogContent = setupDialog.getContentTable();
         dialogContent.pad(20);
         dialogContent.add(new Label("Liczba kolektorow:", skin)).left().pad(5);
@@ -461,6 +466,8 @@ public class SimulationGame extends ApplicationAdapter {
             }
         }
 
+        //statementy do finishu symulacji
+
         if (map.getLitterLevel() > 10.0) {
             reason = "Butelki wyrzucone na ziemie zajmują więcej niż 10% pojemności infrastruktury!";
             endSimulation(false, reason);
@@ -497,6 +504,8 @@ public class SimulationGame extends ApplicationAdapter {
             content.add(loseLabel).padBottom(15).row();
             LoggerService.getInstance().log("=== SYMULACJA PRZERWANA - AWARIA SYSTEMU ===");
         }
+
+        //summary symulacji
 
         content.add(new Label("Czas zakonczenia: " + engine.getTimeManager().getFormattedTime(), skin)).left().padBottom(5).row();
         content.add(new Label("Liczba aktywnych agentow: " + map.getAgents().size(), skin)).left().padBottom(5).row();
@@ -586,7 +595,7 @@ public class SimulationGame extends ApplicationAdapter {
         stage.dispose();
         skin.dispose();
 
-        // bezpieczne czyszczenie zasobów czcionki
+        // BEZPIECZNE czyszczenie zasobów czcionki
         if (font != null) {
             font.dispose();
         }

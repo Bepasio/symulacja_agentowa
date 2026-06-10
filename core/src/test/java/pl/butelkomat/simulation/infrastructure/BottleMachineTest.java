@@ -13,12 +13,12 @@ public class BottleMachineTest {
     @Test
     void shouldRejectNonRefundable() {
         BottleMachine bottleMachine = new BottleMachine(new Position(2,5));
-        assertFalse(bottleMachine.addBottle(new Bottle(false)), "Blad: Maszyna omylkowo przyjela bezzwrotna butelke!");
+        assertFalse(bottleMachine.addBottle(new Bottle(false)), "Powinien odrzucic butelke bezzwrotna");
     }
 
     @Test
     void shouldAcceptRefundable() {
         BottleMachine bottleMachine = new BottleMachine(new Position(2,5));
-        assertTrue(bottleMachine.addBottle(new Bottle(true)), "Blad: Maszyna odrzucila dobra, zwrotna butelke!");
+        assertTrue(bottleMachine.addBottle(new Bottle(true)), "Powinien przyjac butelke zwrotna");
     }
 }

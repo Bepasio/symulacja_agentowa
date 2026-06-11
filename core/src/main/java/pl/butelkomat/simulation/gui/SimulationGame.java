@@ -410,29 +410,8 @@ public class SimulationGame extends ApplicationAdapter {
 //            }
 
             if (mousePos.x >= rx && mousePos.x <= rx + size && mousePos.y >= ry && mousePos.y <= ry + size) {
-                if(e instanceof Consumer consumer) {
-                    String hoverText = "Consumer-" + consumer.getID() + "\n" +
-                            "Butelki: " + consumer.getBottlesAmount() + "/" + consumer.getCapacity() + "\n" +
-                            "Kasa: " + consumer.getBalance() + " zl" + "\n" +
-                            "Poziom frustracji: " + consumer.getFrustrationLevel();
-                    font.draw(spriteBatch, hoverText, rx - 10, ry + size + 20);
-                }else if(e instanceof Collector collector){
-                    String hoverText = "Collector-" + collector.getID() + "\n" +
-                            "Butelki: " + collector.getBottlesAmount() + "/" + collector.getCapacity() + "\n" +
-                            "Kasa: " + collector.getBalance() + " zl" + "\n";
-                    font.draw(spriteBatch, hoverText, rx - 10, ry + size + 20);
-                }else if(e instanceof BottleMachine machine){
-                    String hoverText = "Butelkomat" + "\n" +
-                            "Butelki: " + machine.getBottlesAmount() + "/" + machine.getCapacity() + "\n" +
-                            "Czy pełny: " + machine.isFull() + "\n" +
-                            "Czy zepsuty: " + machine.isBroken();
-                    font.draw(spriteBatch, hoverText, rx - 10, ry + size + 20);
-                }else if(e instanceof TrashBin bin){
-                    String hoverText = "Smietnik" + "\n" +
-                            "Butelki: " + bin.getBottlesAmount() + "/" + bin.getCapacity() + "\n" +
-                            "Czy pełny: " + bin.isFull();
-                    font.draw(spriteBatch, hoverText, rx - 10, ry + size + 20);
-                }
+                String hoverText = e.getStatistics();
+                font.draw(spriteBatch, hoverText, rx - 10, ry + size + 50);
             }
 
         }

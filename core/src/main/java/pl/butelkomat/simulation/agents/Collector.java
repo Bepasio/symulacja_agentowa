@@ -91,6 +91,12 @@ public class Collector extends Agent {
         }
     }
 
+    public String getStatistics(){
+        return "Collector-" + id + "\n" +
+                "Butelki: " + bottles.size() + "/" + backpackCapacity + "\n" +
+                "Kasa: " + balance + " zl";
+    }
+
     public ElementType getElementType() {
         return ElementType.COLLECTOR;
     }

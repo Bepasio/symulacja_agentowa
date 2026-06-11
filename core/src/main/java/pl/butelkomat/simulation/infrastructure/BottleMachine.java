@@ -88,6 +88,13 @@ public class BottleMachine implements MapElement, Interactable {
         stressLevel = 0;
     }
 
+    public String getStatistics() {
+        return "Butelkomat\n" +
+                "Butelki: " + bottles.size() + "/" + capacity + "\n" +
+                "Czy pelny: " + isFull() + "\n" +
+                "Czy zepsuty: " + isBroken;
+    }
+
     public ElementType getElementType() {
         return ElementType.BOTTLE_MACHINE;
     }

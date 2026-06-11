@@ -142,6 +142,14 @@ public class Consumer extends Agent {
             frustrationLevel = 0;
         }
     }
+
+    public String getStatistics() {
+        return "Consumer-" + id + "\n" +
+                "Butelki: " + bottles.size() + "/" + backpackCapacity + "\n" +
+                "Kasa: " + balance + " zl\n" +
+                "Poziom frustracji: " + getFrustrationLevel() + "%";
+    }
+
     public ElementType getElementType() {
         return ElementType.CONSUMER;
     }

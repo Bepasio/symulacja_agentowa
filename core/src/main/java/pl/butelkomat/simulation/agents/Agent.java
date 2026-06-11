@@ -67,6 +67,8 @@ public abstract class Agent implements MapElement {
         }
     }
 
+    public String getStatistics;
+
     public double getBalance() {
         return balance;
     }

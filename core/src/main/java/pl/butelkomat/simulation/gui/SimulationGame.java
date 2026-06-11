@@ -399,15 +399,39 @@ public class SimulationGame extends ApplicationAdapter {
             spriteBatch.draw(tex, rx, ry, size, size);
 
             // sprawdzanie czy element jest agentem i czy myszka nad nim hoveruje
-            if (e instanceof Agent) {
-                if (mousePos.x >= rx && mousePos.x <= rx + size &&
-                        mousePos.y >= ry && mousePos.y <= ry + size) {
+//            if (e instanceof Agent) {
+//                if (mousePos.x >= rx && mousePos.x <= rx + size &&
+//                        mousePos.y >= ry && mousePos.y <= ry + size) {
+//
+//                    String hoverText = "Butelki: " + e.getBottlesAmount();
+//                    // tekst nad głową agenta
+//                    font.draw(spriteBatch, hoverText, rx - 10, ry + size + 20);
+//                }
+//            }
 
-                    String hoverText = "Butelki: " + e.getBottlesAmount();
-                    // tekst nad głową agenta
+            if (mousePos.x >= rx && mousePos.x <= rx + size && mousePos.y >= ry && mousePos.y <= ry + size) {
+                if(e instanceof Consumer consumer) {
+                    String hoverText = "Consumer-" + consumer.getID() + "\n" +
+                            "Butelki: " + consumer.getBottlesAmount() + "/" + consumer.getCapacity() + "\n" +
+                            "Kasa: " + consumer.getBalance() + " zl" + "\n" +
+                            "Poziom frustracji: " + consumer.getFrustrationLevel();
+                    font.draw(spriteBatch, hoverText, rx - 10, ry + size + 20);
+                }else if(e instanceof Collector collector){
+                    String hoverText = "Collector-" + collector.getID() + "\n" +
+                            "Butelki: " + collector.getBottlesAmount() + "/" + collector.getCapacity() + "\n" +
+                            "Kasa: " + collector.getBalance() + " zl" + "\n";
+                    font.draw(spriteBatch, hoverText, rx - 10, ry + size + 20);
+                }else if(e instanceof BottleMachine machine){
+                    String hoverText = "Butelkomat" + "\n" +
+                            "Butelki: " + machine.getBottlesAmount() + "/" + machine.getCapacity();
+                    font.draw(spriteBatch, hoverText, rx - 10, ry + size + 20);
+                }else if(e instanceof TrashBin bin){
+                    String hoverText = "Consumer-" + "\n" +
+                            "Butelki: " + bin.getBottlesAmount() + "/" + bin.getCapacity() + "\n";
                     font.draw(spriteBatch, hoverText, rx - 10, ry + size + 20);
                 }
             }
+
         }
 
         spriteBatch.end();

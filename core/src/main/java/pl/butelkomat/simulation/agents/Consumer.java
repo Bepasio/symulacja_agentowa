@@ -59,29 +59,19 @@ public class Consumer extends Agent {
                 }
             }
 
-            if(currentTarget == null) {
-                if(!bottles.isEmpty()) {
-                    Position target = null;
-
-                    if(hasRefundableBottle()){ //jesli ma jakas zwrotna butelke
-                        target = map.nearestBottleMachine(position, visitedTargets); //szukamy najblizszego butelkomatu
-
-                        if(target == null) { //jestli jest null, bo kazdy byl na czarnej liscie to wyznaczamy smietnik
-                            target = map.nearestTrashBin(position, visitedTargets);
-                        }
+            if(currentTarget == null) { //jesli nie ma celu
+                if(!bottles.isEmpty()) { //to jesli ma jakies butelki
+                    if(!hasRefundableBottle()) { //i kazda jest bezzwrotna
+                        currentTarget = map.nearestTrashBin(position, visitedTargets);//to idzie do smietnika
                     }else{
-                        target = map.nearestTrashBin(position, visitedTargets); //jesli nie ma zwrotnych butelek to wyznaczamy smietnik
+                        currentTarget = map.nearestInteractable(position, visitedTargets); //ale jesli ktoras z nich jest kaucyjna, to wybiera najblizsze miejsce gdzie moze sie pozbyc butelek
                     }
-
-                    if(target == null){ //jesli nie udalo sie nic wyznaczyc, tocczyscimy czarna liste i idziemy gdziekolwiek
-                        LoggerService.getInstance().log("Consumer" + id + ": wszytko pelne/odrzucone. Nie udalo sie wyznaczyc celu");
+                    if(currentTarget == null) { //jesli nie udalo sie wyznaczyc zadnego celu to czyscimy jego czarna liste i wybieramy losowa pozycje
                         visitedTargets.clear();
                         currentTarget = map.getRandomPosition();
-                    }else{
-                        currentTarget = target; //jesli wyznaczyl, to sie do niego udajemy
                     }
                 }else{
-                    currentTarget = map.getRandomPosition();
+                    currentTarget = map.getRandomPosition(); //jesli nie ma butelek to idzie byle gdzie
                 }
             }
 
@@ -134,6 +124,11 @@ public class Consumer extends Agent {
                 }
             }
         }
+    }
+
+    public double getFrustrationLevel() {
+        double percentage = (frustrationLevel / 3.0) * 100;
+        return Math.round(percentage * 100.0) / 100.0;
     }
     public ElementType getElementType() {
         return ElementType.CONSUMER;

@@ -96,7 +96,15 @@ public class Consumer extends Agent {
                                     break;
                                 }
                             }
-                            LoggerService.getInstance().log("Consumer" + id + " wyrzucil " + thrownAway + " butelek do kosza. W plecaku zostalo: " + bottles.size());
+                            if(thrownAway > 0){
+                                LoggerService.getInstance().log("Consumer-" + id + " wyrzucil " + thrownAway + " butelek do smietnika.");
+                                frustrationLevel = 0;
+                            }else {
+                                LoggerService.getInstance().log("Consumer-" + id + " nie udalo sie oddac butelek do smietnika.");
+                                frustrationLevel++; //jesli nie udalo sie oddac butelek, to sie denerwuje
+                                littering(map);
+                                }
+//                            LoggerService.getInstance().log("Consumer" + id + " wyrzucil " + thrownAway + " butelek do kosza. W plecaku zostalo: " + bottles.size());
                         } else if (targetElement instanceof BottleMachine machine) {
                             int accepted = machine.processDeposit(this);
                             if (accepted > 0) {
@@ -105,12 +113,7 @@ public class Consumer extends Agent {
                             } else {
                                 LoggerService.getInstance().log("Consumer-" + id + " nie udalo sie oddac butelek do butelkomatu.");
                                 frustrationLevel++; //jesli nie udalo sie oddac butelek, to sie denerwuje
-                                if (frustrationLevel == 3) { //jesli odbije sie od 3 butelkomatow to wyrzuca smieci na ziemie
-                                    map.addLitter(bottles.size());
-                                    bottles.clear();
-                                    LoggerService.getInstance().log("Consumer-" + id + " wyrzucil butelki w krzaki z frustracji.");
-                                    frustrationLevel = 0; //jak juz wyrzui to zerujemy poziom zdenerwowania
-                                }
+                                littering(map);
                             }
                         }
 
@@ -129,6 +132,15 @@ public class Consumer extends Agent {
     public double getFrustrationLevel() {
         double percentage = (frustrationLevel / 3.0) * 100;
         return Math.round(percentage * 100.0) / 100.0;
+    }
+
+    public void littering(WorldMap map){
+        if(frustrationLevel == 3) {
+            map.addLitter(bottles.size());
+            bottles.clear();
+            LoggerService.getInstance().log("Consumer-" + id + " wyrzucil butelki w krzaki z frustracji.");
+            frustrationLevel = 0;
+        }
     }
     public ElementType getElementType() {
         return ElementType.CONSUMER;

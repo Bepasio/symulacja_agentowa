@@ -423,11 +423,14 @@ public class SimulationGame extends ApplicationAdapter {
                     font.draw(spriteBatch, hoverText, rx - 10, ry + size + 20);
                 }else if(e instanceof BottleMachine machine){
                     String hoverText = "Butelkomat" + "\n" +
-                            "Butelki: " + machine.getBottlesAmount() + "/" + machine.getCapacity();
+                            "Butelki: " + machine.getBottlesAmount() + "/" + machine.getCapacity() + "\n" +
+                            "Czy pełny: " + machine.isFull() + "\n" +
+                            "Czy zepsuty: " + machine.isBroken();
                     font.draw(spriteBatch, hoverText, rx - 10, ry + size + 20);
                 }else if(e instanceof TrashBin bin){
-                    String hoverText = "Consumer-" + "\n" +
-                            "Butelki: " + bin.getBottlesAmount() + "/" + bin.getCapacity() + "\n";
+                    String hoverText = "Smietnik" + "\n" +
+                            "Butelki: " + bin.getBottlesAmount() + "/" + bin.getCapacity() + "\n" +
+                            "Czy pełny: " + bin.isFull();
                     font.draw(spriteBatch, hoverText, rx - 10, ry + size + 20);
                 }
             }
@@ -536,6 +539,8 @@ public class SimulationGame extends ApplicationAdapter {
         content.add(new Label("Butelkomaty: " + map.getBottleMachines().size(), skin)).left().padBottom(5).row();
         content.add(new Label("Smietniki: " + map.getTrashBins().size(), skin)).left().padBottom(5).row();
         content.add(new Label("Butelki w obiegu: " + totalBottles + "/" + map.getMaxBottleAmount(), skin)).left().padBottom(5).row();
+        content.add(new Label("Smieci wyrzucone na ziemie: " + map.getLitterAmount() + "/" + map.getMaxBottleAmount(), skin)).left().padBottom(5).row();
+        content.add(new Label("Najbogatszy agent ma: " + map.richestAgent() + "zl", skin)).left().padBottom(5).row();
 
         summaryDialog.button("Zamknij program", true);
 

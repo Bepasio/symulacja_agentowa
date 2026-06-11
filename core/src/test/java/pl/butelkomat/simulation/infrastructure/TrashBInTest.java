@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import pl.butelkomat.simulation.item.Bottle;
 import pl.butelkomat.simulation.world.Position;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TrashBInTest {
@@ -15,5 +16,14 @@ public class TrashBInTest {
 
         Bottle bottle = bin.takeBottle();
         assertTrue(bottle.isRefundable(), "Powinien zwrocic butelke zwrotna");
+    }
+
+    @Test
+    public void shouldRejectWhenFull() {
+        TrashBin bin = new TrashBin(new Position(2,2));
+        for(int i = 0; i < bin.getCapacity(); i++) {
+            bin.addBottle(new Bottle(false));
+        }
+        assertFalse(bin.addBottle(new Bottle(true)), "Powinien odrzucic butelke gdy pelny");
     }
 }

@@ -208,6 +208,10 @@ public class WorldMap {
             return false;
         }
 
+        if(getInteractableAt(new Position(x, y)) != null){
+            return false;
+        }
+
         return true;
     }
 
@@ -375,6 +379,17 @@ public class WorldMap {
         if (x >= 0 && x < width && y >= 0 && y < height) {
             terrainGrid[y][x] = type;
         }
+    }
+
+    public double richestAgent(){
+        ArrayList<Agent> agents = getAgents();
+        double highestBalance = 0;
+        for(int i = 0; i < agents.size(); i++){
+            if(agents.get(i).getBalance() > highestBalance){
+                highestBalance = agents.get(i).getBalance();
+            }
+        }
+        return highestBalance;
     }
 
     public int getWidth() { return width; }

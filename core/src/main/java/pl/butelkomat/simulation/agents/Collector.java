@@ -27,7 +27,7 @@ public class Collector extends Agent {
             }else if(bottles.isEmpty()){
                 shouldKeepEmptying = false; // ODDAL WSZYSTKO szuka tylko smietnikow
             }
-            
+
             if(currentTarget == null){
                 if(shouldKeepEmptying){
                     currentTarget = map.nearestBottleMachine(position, visitedTargets);

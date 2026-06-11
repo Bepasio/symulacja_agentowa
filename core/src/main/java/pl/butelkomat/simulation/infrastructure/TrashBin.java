@@ -52,6 +52,12 @@ public class TrashBin implements MapElement, Interactable {
         return null;
     }
 
+    public String getStatistics() {
+        return "Smietnik\n" +
+                "Butelki: " + getBottlesAmount() + "/" + capacity + "\n" +
+                "Czy pelny: " + isFull();
+    }
+
     public Position getPosition(){
         return position;
     }

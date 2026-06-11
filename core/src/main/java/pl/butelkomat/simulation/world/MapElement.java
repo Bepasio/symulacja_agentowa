@@ -5,4 +5,5 @@ public interface MapElement {
     int getBottlesAmount();
     int getCapacity();
     ElementType getElementType();
+    String getStatistics();
 }

@@ -14,7 +14,7 @@ import java.util.Stack;
 
 public class Collector extends Agent {
     private static int collectorIdCounter = 1;
-    private boolean isFull = false;
+    private boolean shouldKeepEmptying = false;
 
     public Collector(Position startPosition) {
         super(startPosition, 20, collectorIdCounter++);
@@ -23,25 +23,20 @@ public class Collector extends Agent {
     public void step(boolean movePhase, WorldMap map) {
         if (movePhase) {
             if (bottles.size() >= backpackCapacity) {
-                isFull = true;  // szuka tylko butelkomatow
-            } else if (bottles.isEmpty()) {
-                isFull = false; // szuka tylko smietnikow
+                shouldKeepEmptying = true;  // szuka tylko butelkomatow
+            }else if(bottles.isEmpty()){
+                shouldKeepEmptying = false; // ODDAL WSZYSTKO szuka tylko smietnikow
             }
-
-            if (currentTarget == null) {
-                if (!isFull) {
-                    currentTarget = map.nearestTrashBin(position, visitedTargets); //wyszukujemy najblizszy smietnik
-
-                    if (currentTarget == null) {
-                        visitedTargets.clear(); //czyscimy liste odwiedzonych, jesli kazdy najblizszy byl odwiedzony
-                        currentTarget = map.getRandomPosition(); //nadajemy mu randomowy target zeby nie stal w miejscu
-                    }
-                } else {
+            
+            if(currentTarget == null){
+                if(shouldKeepEmptying){
                     currentTarget = map.nearestBottleMachine(position, visitedTargets);
-                    if (currentTarget == null) {
-                        visitedTargets.clear();
-                        currentTarget = map.getRandomPosition();
-                    }
+                }else {
+                    currentTarget = map.nearestTrashBin(position, visitedTargets);
+                }
+                if(currentTarget == null){
+                    visitedTargets.clear();
+                    currentTarget = map.getRandomPosition();
                 }
             }
 
@@ -49,10 +44,6 @@ public class Collector extends Agent {
                 moveTowards(currentTarget, map); // jesli ma target to idziemy do niego
 
                 if (position.equals(currentTarget)) {
-                    if (!isFull && map.nearestTrashBin(position, visitedTargets) == null) {
-                        currentTarget = null; //jesli mamy miejsce w plecaku i nie mamy wyznaczonego celu do smietnika, to usuwamy target
-                        return;
-                    }
 
                     Interactable interactable = map.getInteractableAt(position);
                     if (interactable != null) {
@@ -80,15 +71,17 @@ public class Collector extends Agent {
 
                             LoggerService.getInstance().log("Collector-" + id + " wyciagnal " + collectedCount + " butelek KAUCYJNYCH z kosza. W plecaku:" + bottles.size() + "/20");
                             visitedTargets.add(currentTarget); //po przeszukaniu smietnika dodajemy go do listy juz odwiedzonych
-                        } else if (interactable instanceof BottleMachine machine && isFull) {
+                        } else if (interactable instanceof BottleMachine machine && shouldKeepEmptying) {
                             int accepted = machine.processDeposit(this); //processDeposit zwraca liczbe odanych butelek do butelkomatu
                             LoggerService.getInstance().log("Collector-" + id + " oddal " + accepted + " butelek do butelkomatu.");
 
                             if (!bottles.isEmpty()) { //jesli zostaly butelki to dodajemy butelkomat na czarna liste
                                 LoggerService.getInstance().log("Collector-" + id + ": nie oddano wszystkiego, pozostalo " + bottles.size() + "/20 butelek");
                                 visitedTargets.add(currentTarget);
+                                shouldKeepEmptying = true;
                             } else {
                                 visitedTargets.clear(); //jesli wszystko oddalismy to czyscimy czarna liste i szukamy od nowa po mapie
+                                shouldKeepEmptying = false;
                             }
                         }
                     }

@@ -461,8 +461,8 @@ public class SimulationGame extends ApplicationAdapter {
             } else if (element instanceof BottleMachine) {
                 if(((BottleMachine) element).isBroken()){
                     brokenMachines++;
-                    if(brokenMachines > countMachines*0.8){
-                        reason = "Więcej niż 80% butelkomatów jest zepsutych";
+                    if(brokenMachines > countMachines*0.75){
+                        reason = "Więcej niż 75% butelkomatów jest zepsutych";
                         endSimulation(false, reason);
                         LoggerService.getInstance().log("Więcej niż 80% butelkomatów jest zepsutych");
                         return;

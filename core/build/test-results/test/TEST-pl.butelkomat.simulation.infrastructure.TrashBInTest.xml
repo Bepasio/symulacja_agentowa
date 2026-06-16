@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="pl.butelkomat.simulation.infrastructure.TrashBInTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-06-16T18:40:25.052Z" hostname="WIKTOR-WIN" time="0.002">
+  <properties/>
+  <testcase name="shouldReturnLastAddedBottle()" classname="pl.butelkomat.simulation.infrastructure.TrashBInTest" time="0.001"/>
+  <testcase name="shouldRejectWhenFull()" classname="pl.butelkomat.simulation.infrastructure.TrashBInTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

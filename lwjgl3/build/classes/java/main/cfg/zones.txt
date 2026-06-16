@@ -1,3 +1,0 @@
-WyspaSLodowa,9,16,5,8,10.0
-Politechnika,72,129,16,23,7.5
-PlacGrunwaldzki,70,100,8,13,5.0

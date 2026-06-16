@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="pl.butelkomat.simulation.world.WorldMapTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-06-16T18:40:25.064Z" hostname="WIKTOR-WIN" time="0.002">
+  <properties/>
+  <testcase name="shouldReturnFalseIfOutsideMap()" classname="pl.butelkomat.simulation.world.WorldMapTest" time="0.001"/>
+  <testcase name="shouldReturnTrueWhenTileIsGrassOrPath()" classname="pl.butelkomat.simulation.world.WorldMapTest" time="0.0"/>
+  <testcase name="shouldReturnFalseWhenWaterOrObstacle()" classname="pl.butelkomat.simulation.world.WorldMapTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

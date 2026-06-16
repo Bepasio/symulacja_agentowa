@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="pl.butelkomat.simulation.utils.CsvStatsSaverTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-06-16T18:40:25.054Z" hostname="WIKTOR-WIN" time="0.009">
+  <properties/>
+  <testcase name="shouldRecordStatsAndWriteCsv()" classname="pl.butelkomat.simulation.utils.CsvStatsSaverTest" time="0.008"/>
+  <system-out><![CDATA[[20:40:25] Dane statystyczne zostaly zapisane do pliku: C:\Users\wikto\AppData\Local\Temp\test_simulation_stats16483882475401441701.csv
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

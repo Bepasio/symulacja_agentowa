@@ -3,18 +3,21 @@ package pl.butelkomat.simulation.engine;
 import pl.butelkomat.simulation.agents.Agent;
 import pl.butelkomat.simulation.infrastructure.BottleMachine;
 import pl.butelkomat.simulation.infrastructure.TrashBin;
+import pl.butelkomat.simulation.utils.CsvStatsSaver;
 import pl.butelkomat.simulation.utils.LoggerService;
 import pl.butelkomat.simulation.world.WorldMap;
 
 public class SimulationEngine {
     private final WorldMap map;
     private final TimeManager timeManager;
+    private final CsvStatsSaver csvStatsSaver;
     private boolean isPaused = false;
     private boolean hasBeenEmptied = false;
 
     public SimulationEngine(WorldMap map) {
         this.map = map;
         this.timeManager = new TimeManager();
+        this.csvStatsSaver = new CsvStatsSaver();
     }
 
     public boolean isPaused() {
@@ -51,9 +54,11 @@ public class SimulationEngine {
             for (Agent agent : map.getAgents()) {
                  agent.step(movePhase, map);
             }
+            csvStatsSaver.recordSnapshot(this);
         }
     }
 
     public WorldMap getMap() { return map; }
     public TimeManager getTimeManager() { return timeManager; }
+    public CsvStatsSaver getCsvStatsSaver() { return csvStatsSaver; }
 }

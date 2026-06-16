@@ -489,6 +489,10 @@ public class SimulationGame extends ApplicationAdapter {
     private void endSimulation(boolean success, String reason) {
         simulationEnded = true;
 
+        if (engine != null && engine.getCsvStatsSaver() != null) {
+            engine.getCsvStatsSaver().saveToCsv("simulation_stats.csv");
+        }
+
         WorldMap map = engine.getMap();
         int totalBottles = 0;
         for (MapElement element : map.getElements()) {
@@ -598,6 +602,10 @@ public class SimulationGame extends ApplicationAdapter {
 
     @Override
     public void dispose() {
+        if (engine != null && engine.getCsvStatsSaver() != null) {
+            engine.getCsvStatsSaver().saveToCsv("simulation_stats.csv");
+        }
+
         shapeRenderer.dispose();
         spriteBatch.dispose();
         stage.dispose();
